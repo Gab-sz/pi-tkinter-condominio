@@ -33,10 +33,10 @@ def criar_janela_login():
     entrada_senha.pack()
 
     # Botão
-    tk.Button(janela, text="Entrar", command=fazer_login).pack(pady=10)
+    tk.Button(janela, text="Entrar", command=autenticar_login).pack(pady=10)
 
     # Loop da janela
     janela.mainloop()
 
 # Chamar a função para iniciar a janela
-criar_janela()
+criar_janela_login()
