@@ -48,3 +48,18 @@ class Banco_de_dados:
                 self.conn.commit()
             except sqlite3.Error as e:
                 print(f"Erro ao criar tabela Morador: {e}")
+
+    def tabela_visitante(self):
+        if self.conn:
+            try:
+                cursor = self.conn.cursor()
+                cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS visitante(
+                        id INT PRIMARY KEY AUTOINCREMENT,
+                        nome TEXT NOT NULL,
+                        cpf TEXT NOT NULL,
+                    )"""
+                )
+                self.conn.commit()
+            except sqlite3.Error as e:
+                print(f"Erro ao criar tabela Visitante: {e}")
