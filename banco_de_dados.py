@@ -55,7 +55,7 @@ class Banco_de_dados:
                 cursor = self.conn.cursor()
                 cursor.execute("""
                     CREATE TABLE IF NOT EXISTS visitante(
-                        id INT PRIMARY KEY AUTOINCREMENT,
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
                         nome TEXT NOT NULL,
                         cpf TEXT NOT NULL,
                     )"""
