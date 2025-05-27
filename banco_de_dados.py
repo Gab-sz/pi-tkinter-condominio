@@ -106,3 +106,10 @@ class Banco_de_dados:
                 self.conn.commit()
             except sqlite3.Error as e:
                 print(f"Erro ao criar tabela Visitas: {e}")
+
+    def criar_tabelas(self):
+        self.tabela_administracao()
+        self.tabela_morador()
+        self.tabela_visitante()
+        self.tabela_ocorrencias()
+        self.tabela_visitas()
