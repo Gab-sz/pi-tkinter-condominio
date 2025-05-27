@@ -2,13 +2,13 @@ import os
 import sqlite3
 
 class Banco_de_dados:
-    def __init__(self, nome="condominio"):
-        self.nome = os.path.join(os.path.dirname(__file__), nome)
+    def __init__(self, db_nome="condominio.sqlite"):
+        self.db_nome = os.path.join(os.path.dirname(__file__), db_nome)
         self.conn = None
 
     def conectar(self):
         try:
-            self.conn = sqlite3.connect(self.nome)
+            self.conn = sqlite3.connect(self.db_nome)
         except sqlite3.Error as e:
             print(f"Erro ao conectar ao banco de dados: {e}")
 
@@ -57,7 +57,7 @@ class Banco_de_dados:
                     CREATE TABLE IF NOT EXISTS visitante(
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                         nome TEXT NOT NULL,
-                        cpf TEXT UNIQUE NOT NULL,
+                        cpf TEXT UNIQUE NOT NULL
                     )"""
                 )
                 self.conn.commit()
@@ -74,12 +74,12 @@ class Banco_de_dados:
                         motivo TEXT NOT NULL,
                         descricao TEXT NOT NULL,
                         morador_id INTEGER,
-                        data_hora DATETIME DEFAULT CURRENT_TIMESTAMP
-                        status INTEGER CHECK (status IN ('aberto', 'em andamento', 'fechado')) DEFAULT 'aberto',
+                        data_hora DATETIME DEFAULT CURRENT_TIMESTAMP,
+                        status TEXT CHECK (status IN ('aberto', 'em andamento', 'fechado')) DEFAULT 'aberto',
                         administracao_id INTEGER,
                         
                         FOREIGN KEY (morador_id) REFERENCES Morador(id),
-                        FOREIGN KEY (administracao_id) REFERENCES administracao(id),
+                        FOREIGN KEY (administracao_id) REFERENCES administracao(id)
                     )"""
                 )
                 self.conn.commit()
