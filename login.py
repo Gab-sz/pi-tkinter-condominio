@@ -2,17 +2,17 @@ import tkinter as tk
 from tkinter import messagebox
 
 # Função de login
-def fazer_login():
+def autenticar_login():
     administrador = entrada_adm.get()
     senha = entrada_senha.get()
 
-    if administrador == "ADM.123" and senha == "adm12345678":
-        messagebox.showinfo("LOGIN", "LOGIN BEM-SUCEDIDO!")
+    if administrador == "admin" and senha == "admin":
+        messagebox.showinfo("Login efetuado!", "LOGIN BEM-SUCEDIDO!")
     else:
-        messagebox.showerror("ERRO", "ADMINISTRADOR OU SENHA INCORRETOS")
+        messagebox.showerror("Login nao efetuado!", "ADMINISTRADOR OU SENHA INCORRETOS")
 
 # Criando a janela
-def criar_janela():
+def criar_janela_login():
     global entrada_adm, entrada_senha
 
     janela = tk.Tk()
