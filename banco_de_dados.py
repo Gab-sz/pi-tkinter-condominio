@@ -40,6 +40,7 @@ class Banco_de_dados:
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                         nome TEXT NOT NULL,
                         telefone TEXT UNIQUE NOT NULL,
+                        cpf TEXT UNIQUE NOT NULL,
                         bloco TEXT NOT NULL,
                         apartamento TEXT NOT NULL,
                         ativo INTEGER DEFAULT 1
