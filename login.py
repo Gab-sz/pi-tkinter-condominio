@@ -1,42 +1,54 @@
 import tkinter as tk
-from tkinter import messagebox
+from autenticacao import Autenticacao
 
-# Função de login
-def autenticar_login():
-    administrador = entrada_adm.get()
-    senha = entrada_senha.get()
+# Variáveis globais para usar nos metodos
+lbl_login = None
+txt_senha = None
+janela = None
 
-    if administrador == "admin" and senha == "admin":
-        messagebox.showinfo("Login efetuado!", "LOGIN BEM-SUCEDIDO!")
+def autenticar_usuario():
+    login = lbl_login.get()
+    senha = txt_senha.get()
+
+    if not login or not senha:
+        print("Campos vazios!")
+        return False
+
+    autenticador = Autenticacao()
+    sucesso, inf_usuario = autenticador.autenticar_usuario(login, senha)
+
+    if sucesso:
+        print(f"Bem vindo, {inf_usuario['nome']}!!!")
     else:
-        messagebox.showerror("Login nao efetuado!", "ADMINISTRADOR OU SENHA INCORRETOS")
+        print("Login ou senha incorretos!")
 
-# Criando a janela
+
 def criar_janela_login():
-    global entrada_adm, entrada_senha
+    global lbl_login, txt_senha
 
     janela = tk.Tk()
-    janela.title("TELA DE LOGIN")
-    janela.geometry("500x300")
+    janela.title("Sistema condominio - Tela inicial")
+    janela.geometry("350x200")
 
     # Título
-    tk.Label(janela, text="LOGIN DO SISTEMA", font=("Arial",14)).pack(pady=10)
+    tk.Label(janela, text="Bem vindo(a)!", font=("Arial",14)).pack(pady=10)
 
     # Campo Administrador
-    tk.Label(janela, text="ADMINISTRADOR:").pack()
-    entrada_adm = tk.Entry(janela)
-    entrada_adm.pack()
+    tk.Label(janela, text="Login:").pack()
+    lbl_login = tk.Entry(janela)
+    lbl_login.pack()
 
     # Campo Senha
     tk.Label(janela, text="Senha:").pack()
-    entrada_senha = tk.Entry(janela, show="*")
-    entrada_senha.pack()
+    txt_senha = tk.Entry(janela, show="*")
+    txt_senha.pack()
 
     # Botão
-    tk.Button(janela, text="Entrar", command=autenticar_login).pack(pady=10)
+    tk.Button(janela, text="Entrar", command=autenticar_usuario).pack(pady=10)
 
     # Loop da janela
     janela.mainloop()
 
 # Chamar a função para iniciar a janela
-criar_janela_login()
+if __name__ == '__main__':
+    criar_janela_login()

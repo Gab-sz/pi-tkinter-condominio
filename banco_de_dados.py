@@ -1,18 +1,34 @@
 import os
-import sqlite3
+from sqlite3 import Error, connect
 
 class Banco_de_dados:
     def __init__(self, db_nome="condominio.sqlite"):
+        """
+        Cria o arquivo na pasta do projeto
+        :param db_nome: Nome do banco de dados
+        """
         self.db_nome = os.path.join(os.path.dirname(__file__), db_nome)
         self.conn = None
 
-    def conectar(self):
+    def conectar(self, criar_tabelas=False):
+        """
+        Abre uma conexão com o banco de dados.
+        :param criar_tabelas: Define se será criado as tabelas ao realizar a conexão (True ou False).
+        :return: Retorna True se conextar com sucesso, False se não.
+        """
         try:
-            self.conn = sqlite3.connect(self.db_nome)
-        except sqlite3.Error as e:
-            print(f"Erro ao conectar ao banco de dados: {e}")
+            self.conn = connect(self.db_nome)
+            if criar_tabelas:
+                self.criar_tabelas()
+            return True
+        except Error as e:
+            print(f"Erro ao conectar: {e}")
+            return False
 
     def tabela_administracao(self):
+        """
+        Cria a tabela "administracao" no banco de dados.
+        """
         if self.conn:
             try:
                 cursor = self.conn.cursor()
@@ -28,10 +44,13 @@ class Banco_de_dados:
                     )"""
                 )
                 self.conn.commit()
-            except sqlite3.Error as e:
+            except Error as e:
                 print(f"Erro ao criar tabela Administracao: {e}")
 
     def tabela_morador(self):
+        """
+        Cria a tabela "morador" referente aos moradores do condominio.
+        """
         if self.conn:
             try:
                 cursor = self.conn.cursor()
@@ -47,10 +66,13 @@ class Banco_de_dados:
                     )"""
                 )
                 self.conn.commit()
-            except sqlite3.Error as e:
+            except Error as e:
                 print(f"Erro ao criar tabela Morador: {e}")
 
     def tabela_visitante(self):
+        """
+        Cria a tabela "visitante" referente aos visitantes do condominio.
+        """
         if self.conn:
             try:
                 cursor = self.conn.cursor()
@@ -62,10 +84,13 @@ class Banco_de_dados:
                     )"""
                 )
                 self.conn.commit()
-            except sqlite3.Error as e:
+            except Error as e:
                 print(f"Erro ao criar tabela Visitante: {e}")
 
     def tabela_ocorrencias(self):
+        """
+        Cria a tabela "ocorrencias" para registrar as ocorrencias feitas no condominio.
+        """
         if self.conn:
             try:
                 cursor = self.conn.cursor()
@@ -84,10 +109,14 @@ class Banco_de_dados:
                     )"""
                 )
                 self.conn.commit()
-            except sqlite3.Error as e:
+            except Error as e:
                 print(f"Erro ao criar tabela Ocorrencias: {e}")
 
     def tabela_visitas(self):
+        """
+        Cria a tabela "visitas" para registrar as visitas feitas no condominio.
+        :return:
+        """
         if self.conn:
             try:
                 cursor = self.conn.cursor()
@@ -105,10 +134,13 @@ class Banco_de_dados:
                     )"""
                                )
                 self.conn.commit()
-            except sqlite3.Error as e:
+            except Error as e:
                 print(f"Erro ao criar tabela Visitas: {e}")
 
     def criar_tabelas(self):
+        """
+        Cria todas as tabelas necessárias no banco de dados.
+        """
         self.tabela_administracao()
         self.tabela_morador()
         self.tabela_visitante()
