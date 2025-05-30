@@ -2,13 +2,13 @@ import tkinter as tk
 from autenticacao import Autenticacao
 
 # Variáveis globais para usar nos metodos
-lbl_login = None
-txt_senha = None
+campo_login = None
+campo_senha = None
 janela = None
 
 def autenticar_usuario():
-    login = lbl_login.get()
-    senha = txt_senha.get()
+    login = campo_login.get()
+    senha = campo_senha.get()
 
     if not login or not senha:
         print("Campos vazios!")
@@ -22,9 +22,8 @@ def autenticar_usuario():
     else:
         print("Login ou senha incorretos!")
 
-
 def criar_janela_login():
-    global lbl_login, txt_senha
+    global campo_login, campo_senha
 
     janela = tk.Tk()
     janela.title("Sistema condominio - Tela inicial")
@@ -35,13 +34,13 @@ def criar_janela_login():
 
     # Campo Administrador
     tk.Label(janela, text="Login:").pack()
-    lbl_login = tk.Entry(janela)
-    lbl_login.pack()
+    campo_login = tk.Entry(janela)
+    campo_login.pack()
 
     # Campo Senha
     tk.Label(janela, text="Senha:").pack()
-    txt_senha = tk.Entry(janela, show="*")
-    txt_senha.pack()
+    campo_senha = tk.Entry(janela, show="*")
+    campo_senha.pack()
 
     # Botão
     tk.Button(janela, text="Entrar", command=autenticar_usuario).pack(pady=10)
