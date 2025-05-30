@@ -70,7 +70,7 @@ class Autenticacao:
                 if self.db.conn:
                     self.db.conn.close()
 
-    def cadastrar_usuario(self, nome, telefone, login, senha, tipo):
+    def registrar_administrador(self, nome, telefone, login, senha, tipo):
         if self.db.conectar():
             try:
                 hash_senha = self.gerar_hash(senha)
@@ -80,11 +80,30 @@ class Autenticacao:
                     VALUES (?, ?, ?, ?, ?)
                 """, (nome, telefone, login, hash_senha, tipo))
                 self.db.conn.commit()
-                print("Usuario criado com sucesso!")
+                print("Administrador criado com sucesso!")
                 return True
 
             except Exception as e:
-                print(f"Erro ao cadastrar usuário: {e}")
+                print(f"Erro ao cadastrar adm: {e}")
+                return False
+            finally:
+                if self.db.conn:
+                    self.db.conn.close()
+
+    def registrar_morador(self, nome, telefone, cpf, bloco, apartamento):
+        if self.db.conectar():
+            try:
+                cursor = self.db.conn.cursor()
+                cursor.execute("""
+                    INSERT INTO morador (nome, telefone, cpf, bloco, apartamento)
+                    VALUES (?, ?, ?, ?, ?)
+                """, (nome, telefone, cpf, bloco, apartamento))
+                self.db.conn.commit()
+                print("Morador criado com sucesso!")
+                return True
+
+            except Exception as e:
+                print(f"Erro ao cadastrar morador: {e}")
                 return False
             finally:
                 if self.db.conn:
