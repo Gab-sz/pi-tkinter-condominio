@@ -12,18 +12,32 @@ class Banco_de_dados:
 
     def conectar(self, criar_tabelas=False):
         """
-        Abre uma conexão com o banco de dados.
+        Abre uma conexão com o banco de dados, se ja existir uma, fecha para evitar multiplas conexões.
         :param criar_tabelas: Define se será criado as tabelas ao realizar a conexão (True ou False).
         :return: Retorna True se conextar com sucesso, False se não.
         """
         try:
+            if self.conn:
+                self.conn.close()
             self.conn = connect(self.db_nome)
             if criar_tabelas:
                 self.criar_tabelas()
             return True
         except Error as e:
             print(f"Erro ao conectar: {e}")
+            self.conn = None
             return False
+
+    def desconectar(self):
+        """
+        Fecha a conexao com o banco de dados.
+        """
+        if self.conn:
+            try:
+                self.conn.close()
+                self.conn = None
+            except Error as e:
+                print(f"Erro ao desconectar: {e}")
 
     def tabela_administracao(self):
         """
@@ -141,8 +155,56 @@ class Banco_de_dados:
         """
         Cria todas as tabelas necessárias no banco de dados.
         """
-        self.tabela_administracao()
-        self.tabela_morador()
-        self.tabela_visitante()
-        self.tabela_ocorrencias()
-        self.tabela_visitas()
+        if self.conectar():
+            self.tabela_administracao()
+            self.tabela_morador()
+            self.tabela_visitante()
+            self.tabela_ocorrencias()
+            self.tabela_visitas()
+            self.desconectar()
+        else:
+            print("Falha ao criar tabelas")
+
+    def listar_moradores_ativos(self):
+        """
+        Busca todos os moradores registrados no banco de dados.
+        :return: lista com moradores ativos no sistema.
+        """
+        moradores = []
+        if not self.conectar():
+            print("Falha no banco de dados")
+            return moradores
+
+        try:
+            cursor = self.conn.cursor()
+            cursor.execute("""
+                SELECT id, nome, bloco, apartamento
+                FROM morador
+                WHERE ativo=1
+                ORDER BY nome ASC
+            """)
+            moradores = cursor.fetchall()
+        except Error as e:
+            print(f"Erro ao listar moradores: {e}")
+        finally:
+            self.desconectar()
+        return moradores
+
+    def registrar_ocorrencia(self, motivo, descricao, morador_id, adm_id):
+        if not self.conectar():
+            print("ERRO DE CONEXAO")
+            return False
+
+        try:
+            cursor = self.conn.cursor()
+            cursor.execute("""
+                INSERT INTO ocorrencias (motivo, descricao, morador_id, administracao_id)
+                VALUES (?, ?, ?, ?)
+            """, (motivo, descricao, morador_id, adm_id))
+            self.conn.commit()
+            return True
+        except Error as e:
+            print(f"Erro ao inserir ocorrência: {e}")
+            return False
+        finally:
+            self.desconectar()
