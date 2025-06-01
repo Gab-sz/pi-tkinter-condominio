@@ -1,4 +1,4 @@
-pipfrom dataclasses import dataclass
+from dataclasses import dataclass
 
 @dataclass
 class Morador:

@@ -208,3 +208,62 @@ class Banco_de_dados:
             return False
         finally:
             self.desconectar()
+
+            def listar_visitas_com_detalhes(self):
+                """Retorna uma lista de visitas no formato: (visitante_nome, visitante_cpf, morador_nome, data_visita)"""
+                visitas = []
+                if not self.conectar():
+                    return visitas
+
+                try:
+                    cursor = self.conn.cursor()
+                    cursor.execute("""
+                        SELECT v.nome, v.cpf, m.nome, vs.entrada
+                        FROM visitas vs
+                        JOIN visitante v ON vs.visitante_id = v.id
+                        JOIN morador m ON vs.morador_id = m.id
+                        ORDER BY vs.entrada DESC
+                    """)
+                    visitas = cursor.fetchall()
+                except Error as e:
+                    print(f"Erro ao listar visitas: {e}")
+                finally:
+                    self.desconectar()
+                return visitas
+
+            def listar_ocorrencias(self):
+                ocorrencias = []
+                if not self.conectar():
+                    return ocorrencias
+                try:
+                    cursor = self.conn.cursor()
+                    cursor.execute("""
+                        SELECT o.id, o.motivo, o.descricao, m.nome, o.status
+                        FROM ocorrencias o
+                        JOIN morador m ON o.morador_id = m.id
+                    """)
+                    ocorrencias = cursor.fetchall()
+                except Error as e:
+                    print(f"Erro ao listar ocorrências: {e}")
+                finally:
+                    self.desconectar()
+                return ocorrencias
+
+            def listar_visitantes_por_morador(self, morador_id):
+                visitantes = []
+                if not self.conectar():
+                    return visitantes
+                try:
+                    cursor = self.conn.cursor()
+                    cursor.execute("""
+                        SELECT v.nome, v.cpf
+                        FROM visitas vs
+                        JOIN visitante v ON vs.visitante_id = v.id
+                        WHERE vs.morador_id = ?
+                    """, (morador_id,))
+                    visitantes = cursor.fetchall()
+                except Error as e:
+                    print(f"Erro ao listar visitantes do morador: {e}")
+                finally:
+                    self.desconectar()
+                return visitantes
