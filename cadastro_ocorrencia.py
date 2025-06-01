@@ -46,7 +46,7 @@ def criar_janela_cadastro_ocorrencia(master=None, usuario_logado=None):
     campo_descricao.pack(pady=(0, 10), fill=tk.BOTH, expand=True)
 
     #Morador
-    tk.Label(frame_principal, text="Morador Relacionado:", anchor="w").pack(fill=tk.X)
+    tk.Label(frame_principal, text="Morador Solicitante:", anchor="w").pack(fill=tk.X)
     combo_morador = ttk.Combobox(frame_principal, state="readonly")
     combo_morador.pack(pady=(0, 10), fill=tk.X)
 
@@ -101,7 +101,7 @@ def criar_janela_cadastro_ocorrencia(master=None, usuario_logado=None):
         # Conecta no banco e salva
         db = Banco_de_dados()
         db.conectar()
-        sucesso = db.registrar_ocorrencia(motivo, descricao, morador_id, admin_id)
+        sucesso = db.registrar_ocorrencia_db(motivo, descricao, morador_id, admin_id)
 
         if sucesso:
             print(f"Ocorrencia registrada!")

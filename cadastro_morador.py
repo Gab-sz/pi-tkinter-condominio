@@ -60,7 +60,7 @@ def criar_janela_cadastro_morador(master=None):
         ## validar aqui
 
         autenticador = Autenticacao()
-        sucesso = autenticador.registrar_morador(nome, telefone, cpf, bloco, apartamento)
+        sucesso = autenticador.registrar_morador_db(nome, telefone, cpf, bloco, apartamento)
 
         if sucesso:
             print("CADASTRO FEITO")

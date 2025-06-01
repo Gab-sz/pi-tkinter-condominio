@@ -83,24 +83,6 @@ class Banco_de_dados:
             except Error as e:
                 print(f"Erro ao criar tabela Morador: {e}")
 
-    def tabela_visitante(self):
-        """
-        Cria a tabela "visitante" referente aos visitantes do condominio.
-        """
-        if self.conn:
-            try:
-                cursor = self.conn.cursor()
-                cursor.execute("""
-                    CREATE TABLE IF NOT EXISTS visitante(
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        nome TEXT NOT NULL,
-                        cpf TEXT UNIQUE NOT NULL
-                    )"""
-                )
-                self.conn.commit()
-            except Error as e:
-                print(f"Erro ao criar tabela Visitante: {e}")
-
     def tabela_ocorrencias(self):
         """
         Cria a tabela "ocorrencias" para registrar as ocorrencias feitas no condominio.
@@ -137,12 +119,12 @@ class Banco_de_dados:
                 cursor.execute("""
                     CREATE TABLE IF NOT EXISTS visitas(
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        visitante_id INTEGER NOT NULL,
+                        visitante_nome TEXT NOT NULL,
+                        visitante_cpf TEXT NOT NULL,
                         entrada DATETIME DEFAULT CURRENT_TIMESTAMP,
                         morador_id INTEGER NOT NULL,
                         administracao_id INTEGER NOT NULL,
 
-                        FOREIGN KEY (visitante_id) REFERENCES visitante(id),
                         FOREIGN KEY (morador_id) REFERENCES morador(id),
                         FOREIGN KEY (administracao_id) REFERENCES administracao(id)
                     )"""
@@ -158,7 +140,6 @@ class Banco_de_dados:
         if self.conectar():
             self.tabela_administracao()
             self.tabela_morador()
-            self.tabela_visitante()
             self.tabela_ocorrencias()
             self.tabela_visitas()
             self.desconectar()
@@ -190,7 +171,7 @@ class Banco_de_dados:
             self.desconectar()
         return moradores
 
-    def registrar_ocorrencia(self, motivo, descricao, morador_id, adm_id):
+    def registrar_ocorrencia_db(self, motivo, descricao, morador_id, adm_id):
         if not self.conectar():
             print("ERRO DE CONEXAO")
             return False
@@ -209,6 +190,7 @@ class Banco_de_dados:
         finally:
             self.desconectar()
 
+<<<<<<< HEAD
             def listar_visitas_com_detalhes(self):
                 """Retorna uma lista de visitas no formato: (visitante_nome, visitante_cpf, morador_nome, data_visita)"""
                 visitas = []
@@ -267,3 +249,23 @@ class Banco_de_dados:
                 finally:
                     self.desconectar()
                 return visitantes
+=======
+    def registrar_visita_db(self, nome_visita, cpf_visita, morador_id, adm_id):
+        if not self.conectar():
+            print("ERRO DE CONEXAO")
+            return False
+
+        try:
+            cursor = self.conn.cursor()
+            cursor.execute("""
+                INSERT INTO visitas (visitante_nome, visitante_cpf, morador_id, administracao_id)
+                VALUES (?, ?, ?, ?)
+            """, (nome_visita, cpf_visita, morador_id, adm_id))
+            self.conn.commit()
+            return True
+        except Error as e:
+            print(f"Erro ao inserir ocorrência: {e}")
+            return False
+        finally:
+            self.desconectar()
+>>>>>>> adc9b041dcce15d3051b01dae3efaadfe1c9dc38

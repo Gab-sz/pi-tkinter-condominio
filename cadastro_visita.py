@@ -1,9 +1,19 @@
-
 import tkinter as tk
 from tkinter import ttk
+from banco_de_dados import Banco_de_dados
 
+# Dados para testar
+usuario_teste = {
+    'id': 1,
+    'nome': 'Administrador teste',
+    'tipo': 'sindico'
+}
 
-def criar_janela_cadastro_visita(master=None):
+def criar_janela_cadastro_visita(master=None, usuario_logado=None):
+    if usuario_logado is None:
+        print("DADOS DO ADM NAO FORNECIDOS")
+        usuario_logado = usuario_teste
+        print("Usando usuario teste")
 
     if master:
         janela = tk.Toplevel(master)
@@ -13,40 +23,89 @@ def criar_janela_cadastro_visita(master=None):
     janela.title("Cadastro de Visita")
     janela.geometry("450x350")
 
-    # Frame principal
+    # Janela
     frame_principal = tk.Frame(janela, padx=10, pady=10)
     frame_principal.pack(expand=True, fill=tk.BOTH)
 
     # Título
     tk.Label(frame_principal, text="Registrar Nova Visita", font=("Arial", 16, "bold")).pack(pady=(0, 15))
 
-    # --- Campos do Visitante ---
+    # Nome visitante
     tk.Label(frame_principal, text="Nome do Visitante:", anchor="w").pack(fill=tk.X)
-    entry_nome_visitante = tk.Entry(frame_principal, width=50)
-    entry_nome_visitante.pack(pady=(0, 10), fill=tk.X)
+    campo_nome_visita = tk.Entry(frame_principal, width=50)
+    campo_nome_visita.pack(pady=(0, 10), fill=tk.X)
 
+    # cpf visitante
     tk.Label(frame_principal, text="CPF do Visitante:", anchor="w").pack(fill=tk.X)
-    entry_cpf_visitante = tk.Entry(frame_principal, width=50)
-    entry_cpf_visitante.pack(pady=(0, 10), fill=tk.X)
+    campo_cpf_visita = tk.Entry(frame_principal, width=50)
+    campo_cpf_visita.pack(pady=(0, 10), fill=tk.X)
 
-
+    # Morador que recebe a visita
     tk.Label(frame_principal, text="Morador Visitado:", anchor="w").pack(fill=tk.X)
-
-    lista_moradores_exemplo = ["(Carregar moradores...)"]
-    combo_morador = ttk.Combobox(frame_principal, values=lista_moradores_exemplo, state="readonly", width=48)
+    combo_morador = ttk.Combobox(frame_principal, state="readonly", width=48)
     combo_morador.pack(pady=(0, 15), fill=tk.X)
-    combo_morador.set(lista_moradores_exemplo[0])
 
+    #Lista de moradores
+    moradores = {}
 
-    btn_registrar = tk.Button(frame_principal, text="Registrar Visita",
+    def popular_moradores():
+        """
+        Função para puxar os moradores do banco de dados e inseri-los no combobox.
+        A função cria um texto formatado para colocar no combobox com <nome> <bloco> <apartamento>
+        """
+        db = Banco_de_dados()
+        moradores_ativos = db.listar_moradores_ativos()
+        moradores.clear()
+        formato = []
 
+        if moradores_ativos:
+            for morador_id, nome, bloco, apt in moradores_ativos:
+                texto = f"{nome} - Bloco {bloco} Apto {apt}"
+                formato.append(texto)
+                moradores[texto] = morador_id
+            combo_morador['values'] = formato
+            if formato:
+                combo_morador.set(formato[0])
+                combo_morador['state'] = 'readonly'
+            else:
+                combo_morador['values'] = formato
+                combo_morador.set(formato[0])
+                combo_morador['state'] = 'disabled'
+        else:
+            formato = ["Nenhum morador ativo encontrado"]
+            combo_morador['values'] = formato
+            combo_morador.set(formato[0])
+            combo_morador['state'] = 'disabled'
+
+    def registrar_visita():
+        nome_visita = campo_nome_visita.get().strip()
+        cpf_visita = campo_cpf_visita.get().strip()
+        morador_selecionado = combo_morador.get()
+        morador_id = moradores.get(morador_selecionado)
+        admin_id = usuario_logado['id']
+
+        if morador_id is None:
+            print("Nenhum morador selecionado")
+
+        ##Validação aqui
+
+        db = Banco_de_dados()
+        db.conectar()
+        sucesso = db.registrar_visita_db(nome_visita, cpf_visita, morador_id, admin_id)
+
+        if sucesso:
+            print("VISITA REGISTRADA")
+            ##DESTRUIR A JANELA
+
+    # Botao para registrar
+    btn_registrar = tk.Button(frame_principal, text="Registrar Visita", command=registrar_visita,
                               font=("Arial", 12), bg="#4CAF50", fg="white", relief=tk.FLAT, padx=10, pady=5)
     btn_registrar.pack()
 
-
+    popular_moradores()
     widgets = {
-        "entry_nome_visitante": entry_nome_visitante,
-        "entry_cpf_visitante": entry_cpf_visitante,
+        "campo_nome_visita": campo_nome_visita,
+        "campo_cpf_visita": campo_cpf_visita,
         "combo_morador": combo_morador,
         "btn_registrar": btn_registrar,
         "janela": janela
@@ -57,8 +116,6 @@ def criar_janela_cadastro_visita(master=None):
 
     return widgets
 
-
 if __name__ == '__main__':
-
     criar_janela_cadastro_visita()
 
