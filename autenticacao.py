@@ -70,7 +70,7 @@ class Autenticacao:
                 if self.db.conn:
                     self.db.conn.close()
 
-    def registrar_administrador(self, nome, telefone, login, senha, tipo):
+    def registrar_administrador_db(self, nome, telefone, login, senha, tipo):
         if self.db.conectar():
             try:
                 hash_senha = self.gerar_hash(senha)
@@ -90,7 +90,7 @@ class Autenticacao:
                 if self.db.conn:
                     self.db.conn.close()
 
-    def registrar_morador(self, nome, telefone, cpf, bloco, apartamento):
+    def registrar_morador_db(self, nome, telefone, cpf, bloco, apartamento):
         if self.db.conectar():
             try:
                 cursor = self.db.conn.cursor()

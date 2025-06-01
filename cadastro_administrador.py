@@ -71,7 +71,7 @@ def criar_janela_cadastro_administrador(master=None):
         ## validar aqui
 
         autenticador = Autenticacao()
-        sucesso = autenticador.registrar_administrador(nome, telefone, login, senha, tipo)
+        sucesso = autenticador.registrar_administrador_db(nome, telefone, login, senha, tipo)
 
         if sucesso:
             print("CADASTRO FEITO")
