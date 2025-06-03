@@ -1,71 +1,266 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
 from banco_de_dados import Banco_de_dados
-
 
 class InterfaceListagens:
     def __init__(self, root):
+        """
+        Inicia uma janela de menu com 3 botoes (Listagem de ocorrencia, moradores e visitas)
+        """
         self.root = root
         self.root.title("Sistema Condomínio - Listagens")
         self.root.geometry("500x300")
 
         self.db = Banco_de_dados()
 
-        # Botões principais
-        btn_moradores = tk.Button(root, text="Listar Moradores", command=self.abrir_janela_moradores)
+        btn_moradores = tk.Button(root, text="Lista de Moradores", command=self.abrir_janela_moradores)
         btn_moradores.pack(pady=10)
 
-        btn_visitantes = tk.Button(root, text="Listar Visitantes", command=self.abrir_janela_visitantes)
-        btn_visitantes.pack(pady=10)
+        btn_visitas = tk.Button(root, text="Lista de Visitantes", command=self.abrir_janela_visitas)
+        btn_visitas.pack(pady=10)
 
-        btn_ocorrencias = tk.Button(root, text="Listar Ocorrências", command=self.abrir_janela_ocorrencias)
+        btn_ocorrencias = tk.Button(root, text="Lista de Ocorrências", command=self.abrir_janela_ocorrencias)
         btn_ocorrencias.pack(pady=10)
 
+    #============ TELA DE MORADORES ==============
+
     def abrir_janela_moradores(self):
+        """
+        Cria uma janela com a listagem de moradores registrados no banco de dados.
+        """
         janela = tk.Toplevel(self.root)
         janela.title("Moradores Cadastrados")
+        janela.geometry("750x400")
 
-        tree = ttk.Treeview(janela, columns=("ID", "Nome", "Bloco", "Apartamento"), show="headings")
+        tree_frame = tk.Frame(janela)
+        tree_frame.pack(fill="both", expand=True, padx=10, pady=(10, 0))
+
+        # DEFINIÇÃO DAS COLUNAS
+        colunas = ("ID", "Nome", "Bloco", "Apartamento", "Status")
+        tree = ttk.Treeview(tree_frame, columns=colunas, show="headings")
+
+        # CABEÇALHOS
         tree.heading("ID", text="ID")
         tree.heading("Nome", text="Nome")
         tree.heading("Bloco", text="Bloco")
-        tree.heading("Apartamento", text="Apartamento")
-        tree.column("ID", width=50, anchor='center')
-        tree.pack(fill="both", expand=True)
+        tree.heading("Apartamento", text="Apto")
+        tree.heading("Status", text="Status")
 
-        btn_detalhes = tk.Button(janela, text="Ver Detalhes",
-                                 command=lambda: self.mostrar_detalhes_morador(tree.item(tree.selection())['values']))
-        btn_detalhes.pack()
+        # LARGURA
+        tree.column("ID", width=40, anchor='center', stretch=tk.NO)
+        tree.column("Nome", width=300)
+        tree.column("Bloco", width=60, anchor='center')
+        tree.column("Apartamento", width=60, anchor='center')
+        tree.column("Status", width=80, anchor='center')
 
-        moradores = self.db.listar_moradores_ativos()
+        scrollbar = ttk.Scrollbar(tree_frame, orient="vertical", command=tree.yview)
+        tree.configure(yscrollcommand=scrollbar.set)
+
+        tree.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
+
+        # LOCAL ONDE FICA OS BOTOES
+        area_botoes = tk.Frame(janela)
+        area_botoes.pack(fill="x", padx=10, pady=10)
+
+        btn_detalhes = tk.Button(area_botoes, text="Ver Detalhes", width=15,
+                                 command=lambda: self.mostrar_detalhes_morador(tree))
+        btn_detalhes.pack(side="left", padx=5)
+
+        btn_ativar = tk.Button(area_botoes, text="Ativar/Desativar", width=15,
+                               command=lambda: self.alterar_status_morador_selecionado(tree))  # Chama o método correto
+        btn_ativar.pack(side="left", padx=5)
+
+        self.popular_tabela_moradores(tree)
+
+    def popular_tabela_moradores(self, tree):
+        """
+        Função para preencher a tabela com os moradores registrados (ativados e desativados).
+        :param tree: tabela que será feita a visualização dos dados.
+        """
+        for i in tree.get_children():
+            tree.delete(i)
+
+        # Lista de moradores
+        moradores = self.db.listar_todos_moradores()
+
+        # Caso a lista nao possua moradores
+        if not moradores:
+            tree.insert("", "end", values=("", "Nenhum morador cadastrado", "", "", ""))
+            return
+
         for morador in moradores:
-            tree.insert("", "end", values=morador)
+            morador_id, nome, bloco, apto, ativo_status = morador
+            status_texto = "Ativo" if ativo_status == 1 else "Inativo"
+            tree.insert("", "end", values=(morador_id, nome, bloco, apto, status_texto), iid=morador_id)
 
-    def abrir_janela_visitantes(self):
+    def alterar_status_morador_selecionado(self, tree):
+        """
+        Modifica o status do morador (entre 0 e 1 (ativado e desativado)).
+        :param tree: treeview que exibirá os moradores.
+        """
+        selection = tree.selection()
+
+        if not selection:
+            messagebox.showwarning("Seleção", "Selecione um morador da lista.", parent=tree.winfo_toplevel())
+            return
+
+        if len(selection) > 1:
+            messagebox.showwarning("Seleção", "Selecione apenas um morador.", parent=tree.winfo_toplevel())
+            return
+
+        morador_id = int(selection[0])
+
+        valores_linha = tree.item(selection[0], 'values')
+        nome_morador = valores_linha[1]
+        status_atual = valores_linha[4]
+        mudar_status = "Desativar" if status_atual == "Ativo" else "Ativar"
+
+        confirmar = messagebox.askyesno("Confirmar Ação", f"Deseja realmente {mudar_status.lower()} o morador '{nome_morador}' (ID: {morador_id})?", parent=tree.winfo_toplevel())
+
+        if confirmar:
+            sucesso = self.db.modificar_status_morador(morador_id)
+
+            if sucesso:
+                messagebox.showinfo("Sucesso", f"Status do morador '{nome_morador}' alterado com sucesso!", parent=tree.winfo_toplevel())
+                self.popular_tabela_moradores(tree)
+            else:
+                messagebox.showerror("Erro", f"Falha ao alterar o status do morador '{nome_morador}'. Verifique o console.", parent=tree.winfo_toplevel())
+
+    def mostrar_detalhes_morador(self, tree):
+        """
+        Abre uma janela para mostrar os detalhes (ocorrencias e visitas) do morador selecionado na treeview
+        :param tree: Tabela onde será mostrado os moradores.
+        """
+        selection = tree.selection()
+
+        if not selection:
+            messagebox.showwarning("Seleção", "Selecione um morador para ver os detalhes.", parent=tree.winfo_toplevel())
+            return
+        if len(selection) > 1:
+            messagebox.showwarning("Seleção", "Selecione apenas um morador.", parent=tree.winfo_toplevel())
+            return
+
+        morador_data = tree.item(selection[0], 'values')
+
+        try:
+            morador_id_texto, nome, bloco, apartamento, status_texto = morador_data
+            morador_id = int(morador_id_texto)
+        except ValueError:
+            messagebox.showerror("Erro", "Não foi possível obter os dados do morador selecionado.", parent=tree.winfo_toplevel())
+            return
+
+        janela_detalhes = tk.Toplevel(self.root)
+        janela_detalhes.title(f"Detalhes do Morador: {nome}")
+        janela_detalhes.geometry("600x400")
+
+        main_frame = tk.Frame(janela_detalhes)
+        main_frame.pack(fill="both", expand=True, padx=10, pady=10)
+
+        info_frame = tk.LabelFrame(main_frame, text="Informações do Morador")
+        info_frame.pack(fill="x", pady=5)
+
+        tk.Label(info_frame, text=f"ID: {morador_id}").pack(anchor="w")
+        tk.Label(info_frame, text=f"Nome: {nome}").pack(anchor="w")
+        tk.Label(info_frame, text=f"Bloco: {bloco}").pack(anchor="w")
+        tk.Label(info_frame, text=f"Apartamento: {apartamento}").pack(anchor="w")
+        tk.Label(info_frame, text=f"Status: {status_texto}").pack(anchor="w")
+
+        notebook = ttk.Notebook(main_frame)
+        notebook.pack(fill="both", expand=True, pady=5)
+
+        ocorrencias_frame = ttk.Frame(notebook)
+        notebook.add(ocorrencias_frame, text="Ocorrências")
+        tree_ocorrencias = ttk.Treeview(ocorrencias_frame, columns=("Motivo", "Status"), show="headings")
+        tree_ocorrencias.heading("Motivo", text="Motivo")
+        tree_ocorrencias.heading("Status", text="Status")
+        tree_ocorrencias.pack(fill="both", expand=True)
+
+        visitantes_frame = ttk.Frame(notebook)
+        notebook.add(visitantes_frame, text="Visitantes")
+        tree_visitantes = ttk.Treeview(visitantes_frame, columns=("Visitante", "CPF"), show="headings")
+        tree_visitantes.heading("Visitante", text="Visitante")
+        tree_visitantes.heading("CPF", text="CPF")
+        tree_visitantes.pack(fill="both", expand=True)
+
+        self.carregar_ocorrencias_morador(morador_id, tree_ocorrencias)
+        self.carregar_visitantes_morador(morador_id, tree_visitantes)
+
+    def carregar_ocorrencias_morador(self, morador_id, tree):
+        """
+        Busca as ocorrencias do morador selecionado na treeview.
+        :param morador_id: ID do morador seleciado.
+        :param tree: Tabela que mostra os moradores.
+        """
+        for i in tree.get_children():
+            tree.delete(i)
+
+        ocorrencias = self.db.listar_ocorrencias_por_morador(morador_id)
+
+        if ocorrencias:
+            for oc in ocorrencias:
+                tree.insert("", "end", values=oc)
+        else:
+            tree.insert("", "end", values=("Nenhuma ocorrência", ""))
+
+    def carregar_visitantes_morador(self, morador_id, tree):
+        """
+        Busca as visitas do morador selecionado na treeview.
+        :param morador_id: ID do morador selecionado na treeview.
+        :param tree: Janela que mostra os moradores.
+        """
+        for i in tree.get_children():
+            tree.delete(i)
+
+        visitantes = self.db.listar_visitantes_por_morador(morador_id)
+
+        if visitantes:
+            for v in visitantes: tree.insert("", "end", values=v)
+        else:
+            tree.insert("", "end", values=("Nenhum visitante", ""))
+
+    #============ TELA DE VISITANTES ==============
+
+    def abrir_janela_visitas(self):
+        """
+        Cria uma janela para mostrar todos as visitas feitas.
+        """
         janela = tk.Toplevel(self.root)
-        janela.title("Histórico de Visitas")
+        janela.title("Ocorrências Registradas")
         janela.geometry("800x400")
 
         frame = tk.Frame(janela)
         frame.pack(fill="both", expand=True, padx=10, pady=10)
+        tree = ttk.Treeview(frame, columns=("ID", "Visitante", "CPF", "Morador", "Data/Hora"), show="headings")
 
-        tree = ttk.Treeview(frame, columns=("Visita"), show="headings")
-        tree.heading("Visita", text="Registro de Visitas")
-        tree.column("Visita", width=750)
-        tree.pack(side="left", fill="both", expand=True)
+        tree.heading("ID", text="ID")
+        tree.heading("Visitante", text="Visitante")
+        tree.heading("CPF", text="CPF")
+        tree.heading("Morador", text="Morador")
+        tree.heading("Data/Hora", text="Data/Hora")
+
+        tree.column("ID", width=40, anchor='center', stretch=tk.NO)
+        tree.column("Visitante", width=150)
+        tree.column("CPF", width=300)
+        tree.column("Morador", width=150)
+        tree.column("Data/Hora", width=80, anchor='center')
 
         scrollbar = ttk.Scrollbar(frame, orient="vertical", command=tree.yview)
-        scrollbar.pack(side="right", fill="y")
         tree.configure(yscrollcommand=scrollbar.set)
 
-        visitas = self.db.listar_visitas_com_detalhes()
+        tree.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
+
+        visitas = self.db.listar_visitas()
         for visita in visitas:
-            visitante_nome, visitante_cpf, morador_nome, data_visita = visita
-            data_formatada = data_visita.split()[0]
-            registro = f"{visitante_nome} (CPF: {visitante_cpf}) visitou {morador_nome} em {data_formatada}"
-            tree.insert("", "end", values=(registro,))
+            tree.insert("", "end", values=(visita[0], visita[1], visita[2], visita[3], visita[4]))
+
+    # ============ TELA DE OCORRENCIAS ==============
 
     def abrir_janela_ocorrencias(self):
+        """
+        Cria uma janela de ocorrencias para mostrar todas as registradas no banco de dados.
+        """
         janela = tk.Toplevel(self.root)
         janela.title("Ocorrências Registradas")
         janela.geometry("800x400")
@@ -73,78 +268,34 @@ class InterfaceListagens:
         frame = tk.Frame(janela)
         frame.pack(fill="both", expand=True, padx=10, pady=10)
 
-        tree = ttk.Treeview(frame, columns=("Motivo", "Descrição", "Morador", "Status"), show="headings")
+        tree = ttk.Treeview(frame, columns=("ID", "Motivo", "Descrição", "Morador", "Status"), show="headings")
+
+        tree.heading("ID", text="ID")
         tree.heading("Motivo", text="Motivo")
         tree.heading("Descrição", text="Descrição")
         tree.heading("Morador", text="Morador")
         tree.heading("Status", text="Status")
-        tree.pack(side="left", fill="both", expand=True)
+
+        tree.column("ID", width=40, anchor='center', stretch=tk.NO)
+        tree.column("Motivo", width=150)
+        tree.column("Descrição", width=300)
+        tree.column("Morador", width=150)
+        tree.column("Status", width=80, anchor='center')
 
         scrollbar = ttk.Scrollbar(frame, orient="vertical", command=tree.yview)
-        scrollbar.pack(side="right", fill="y")
         tree.configure(yscrollcommand=scrollbar.set)
 
+        scrollbar.pack(side="right", fill="y")
+        tree.pack(side="left", fill="both", expand=True)
+
         ocorrencias = self.db.listar_ocorrencias()
+
         for oc in ocorrencias:
-            tree.insert("", "end", values=(oc[1], oc[2], oc[3], oc[4]))
-
-    def mostrar_detalhes_morador(self, morador_data):
-        if not morador_data:
-            return
-
-        morador_id, nome, bloco, apartamento = morador_data
-        janela = tk.Toplevel(self.root)
-        janela.title(f"Detalhes do Morador: {nome}")
-        janela.geometry("600x400")
-
-        # Frame principal
-        main_frame = tk.Frame(janela)
-        main_frame.pack(fill="both", expand=True, padx=10, pady=10)
-
-        # Informações básicas
-        info_frame = tk.LabelFrame(main_frame, text="Informações do Morador")
-        info_frame.pack(fill="x", pady=5)
-
-        tk.Label(info_frame, text=f"Nome: {nome}").pack(anchor="w")
-        tk.Label(info_frame, text=f"Bloco: {bloco}").pack(anchor="w")
-        tk.Label(info_frame, text=f"Apartamento: {apartamento}").pack(anchor="w")
-
-        # Abas para ocorrências e visitantes
-        notebook = ttk.Notebook(main_frame)
-        notebook.pack(fill="both", expand=True)
-
-        # Aba de Ocorrências
-        ocorrencias_frame = ttk.Frame(notebook)
-        notebook.add(ocorrencias_frame, text="Ocorrências")
-
-        tree_ocorrencias = ttk.Treeview(ocorrencias_frame, columns=("Motivo", "Status"), show="headings")
-        tree_ocorrencias.heading("Motivo", text="Motivo")
-        tree_ocorrencias.heading("Status", text="Status")
-        tree_ocorrencias.pack(fill="both", expand=True)
-
-        # Aba de Visitantes
-        visitantes_frame = ttk.Frame(notebook)
-        notebook.add(visitantes_frame, text="Visitantes")
-
-        tree_visitantes = ttk.Treeview(visitantes_frame, columns=("Visitante", "CPF"), show="headings")
-        tree_visitantes.heading("Visitante", text="Visitante")
-        tree_visitantes.heading("CPF", text="CPF")
-        tree_visitantes.pack(fill="both", expand=True)
-
-        # Preencher os dados
-        self.carregar_ocorrencias_morador(morador_id, tree_ocorrencias)
-        self.carregar_visitantes_morador(morador_id, tree_visitantes)
-
-    def carregar_ocorrencias_morador(self, morador_id, tree):
-        # Implemente esta função para carregar as ocorrências do morador
-        pass
-
-    def carregar_visitantes_morador(self, morador_id, tree):
-        # Implemente esta função para carregar os visitantes do morador
-        pass
+            tree.insert("", "end", values=(oc[0], oc[1], oc[2], oc[3], oc[4]))
 
 
 if __name__ == "__main__":
     root = tk.Tk()
     app = InterfaceListagens(root)
     root.mainloop()
+

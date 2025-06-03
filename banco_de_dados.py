@@ -39,6 +39,8 @@ class Banco_de_dados:
             except Error as e:
                 print(f"Erro ao desconectar: {e}")
 
+    # =========== FUNÇÕES DE CRIAÇÃO DE TABELAS ================
+
     def tabela_administracao(self):
         """
         Cria a tabela "administracao" no banco de dados.
@@ -146,6 +148,8 @@ class Banco_de_dados:
         else:
             print("Falha ao criar tabelas")
 
+    #=========== FUNÇÕES DE MORADORES ================
+
     def listar_moradores_ativos(self):
         """
         Busca todos os moradores registrados no banco de dados.
@@ -159,7 +163,7 @@ class Banco_de_dados:
         try:
             cursor = self.conn.cursor()
             cursor.execute("""
-                SELECT id, nome, bloco, apartamento
+                SELECT id, nome, bloco, apartamento, ativo
                 FROM morador
                 WHERE ativo=1
                 ORDER BY nome ASC
@@ -171,7 +175,75 @@ class Banco_de_dados:
             self.desconectar()
         return moradores
 
+    def listar_todos_moradores(self):
+        """
+        Busca todos os moradores registrados no banco de dados.
+        :return: lista com moradores ativos no sistema.
+        """
+        moradores = []
+        if not self.conectar():
+            print("Falha no banco de dados")
+            return moradores
+
+        try:
+            cursor = self.conn.cursor()
+            cursor.execute("""
+                SELECT id, nome, bloco, apartamento, ativo
+                FROM morador
+                ORDER BY nome ASC
+            """)
+            moradores = cursor.fetchall()
+        except Error as e:
+            print(f"Erro ao listar moradores: {e}")
+        finally:
+            self.desconectar()
+        return moradores
+
+    def modificar_status_morador(self, morador_id):
+        """
+        Modifica o status do morador entre 0 e 1.
+        :param morador_id: ID do morador que será modificado.
+        :return: Retorna True se alguma linha for modificada, False se nada for modificado.
+        """
+        if not self.conectar():
+            print("ERRO DE CONEXAO")
+            return False
+
+        try:
+            cursor = self.conn.cursor()
+            cursor.execute("""
+                UPDATE morador 
+                SET ativo = CASE 
+                    WHEN ativo = 1 THEN 0 
+                        ELSE 1 
+                END
+                WHERE id = ?
+            """, (morador_id,))
+            self.conn.commit()
+
+            if cursor.rowcount>0:
+                print("STATUS MODIFICADO")
+                return True
+            else:
+                print("NENHUM MORADOR MODIFICADO")
+                return False
+        except Error as e:
+            print(f"Erro ao modificar status: {e}")
+            return False
+        finally:
+            self.desconectar()
+
+    # =========== FUNÇÕES DE OCORRENCIAS ================
+
     def registrar_ocorrencia_db(self, motivo, descricao, morador_id, adm_id):
+        """
+        Registra uma ocorrencia no banco de dados.
+        :param motivo: O motivo da ocorrencia.
+        :param descricao: A descrição da ocorrencia.
+        :param morador_id: O ID do morador que está solicitando a abertura da ocorrencia.
+        :param adm_id: O ID do admin que esta logado no sistema.
+        :return: Retorna True se o registro for realizado, False se ocorrer algum erro.
+        """
         if not self.conectar():
             print("ERRO DE CONEXAO")
             return False
@@ -190,67 +262,102 @@ class Banco_de_dados:
         finally:
             self.desconectar()
 
-<<<<<<< HEAD
-            def listar_visitas_com_detalhes(self):
-                """Retorna uma lista de visitas no formato: (visitante_nome, visitante_cpf, morador_nome, data_visita)"""
-                visitas = []
-                if not self.conectar():
-                    return visitas
+    def listar_ocorrencias(self):
+        """
+        Lista todas as ocorrencias registradas no banco de dados.
+        :return: Retorna a lista de ocorrencias.
+        """
+        ocorrencias = []
+        if not self.conectar():
+            return ocorrencias
+        try:
+            cursor = self.conn.cursor()
+            cursor.execute("""
+                SELECT o.id, o.motivo, o.descricao, m.nome, o.status
+                FROM ocorrencias o
+                JOIN morador m ON o.morador_id = m.id
+            """)
+            ocorrencias = cursor.fetchall()
+        except Error as e:
+            print(f"Erro ao listar ocorrências: {e}")
+        finally:
+            self.desconectar()
+            return ocorrencias
 
-                try:
-                    cursor = self.conn.cursor()
-                    cursor.execute("""
-                        SELECT v.nome, v.cpf, m.nome, vs.entrada
-                        FROM visitas vs
-                        JOIN visitante v ON vs.visitante_id = v.id
-                        JOIN morador m ON vs.morador_id = m.id
-                        ORDER BY vs.entrada DESC
-                    """)
-                    visitas = cursor.fetchall()
-                except Error as e:
-                    print(f"Erro ao listar visitas: {e}")
-                finally:
-                    self.desconectar()
-                return visitas
+    def listar_ocorrencias_por_morador(self, morador_id):
+        """
+        Lista todas as ocorrencias de um morador especifico.
+        :param morador_id: O ID do morador que sera feito o filtro.
+        :return: Lista de ocorrencia do morador.
+        """
+        ocorrencias = []
+        if not self.conectar(): return ocorrencias
+        try:
+            cursor = self.conn.cursor()
+            cursor.execute("SELECT motivo, status FROM ocorrencias WHERE morador_id = ? ORDER BY data_hora DESC",
+                           (morador_id,))
+            ocorrencias = cursor.fetchall()
+        except Error as e:
+            print(f"Erro ao listar ocorrências do morador: {e}")
+        finally:
+            self.desconectar()
+        return ocorrencias
 
-            def listar_ocorrencias(self):
-                ocorrencias = []
-                if not self.conectar():
-                    return ocorrencias
-                try:
-                    cursor = self.conn.cursor()
-                    cursor.execute("""
-                        SELECT o.id, o.motivo, o.descricao, m.nome, o.status
-                        FROM ocorrencias o
-                        JOIN morador m ON o.morador_id = m.id
-                    """)
-                    ocorrencias = cursor.fetchall()
-                except Error as e:
-                    print(f"Erro ao listar ocorrências: {e}")
-                finally:
-                    self.desconectar()
-                return ocorrencias
+    # =========== FUNÇÕES DE VISITAS ================
 
-            def listar_visitantes_por_morador(self, morador_id):
-                visitantes = []
-                if not self.conectar():
-                    return visitantes
-                try:
-                    cursor = self.conn.cursor()
-                    cursor.execute("""
-                        SELECT v.nome, v.cpf
-                        FROM visitas vs
-                        JOIN visitante v ON vs.visitante_id = v.id
-                        WHERE vs.morador_id = ?
-                    """, (morador_id,))
-                    visitantes = cursor.fetchall()
-                except Error as e:
-                    print(f"Erro ao listar visitantes do morador: {e}")
-                finally:
-                    self.desconectar()
-                return visitantes
-=======
+    def listar_visitas(self):
+        """Retorna uma lista de visitas no formato: (visitante_nome, visitante_cpf, morador_nome, data_visita)"""
+        visitas = []
+        if not self.conectar():
+            return visitas
+
+        try:
+            cursor = self.conn.cursor()
+            cursor.execute("""
+                SELECT v.id, v.visitante_nome, v.visitante_cpf, m.nome, entrada
+                FROM visitas v
+                JOIN morador m ON v.morador_id = m.id
+                ORDER BY v.entrada DESC
+            """)
+            visitas = cursor.fetchall()
+        except Error as e:
+            print(f"Erro ao listar visitas: {e}")
+        finally:
+            self.desconectar()
+            return visitas
+
+    def listar_visitantes_por_morador(self, morador_id):
+        """
+        Lista todas as visitas de um morador especifico.
+        :param morador_id: O ID do morador que sera feito o filtro.
+        :return: Lista de visitas do morador.
+        """
+        visitantes = []
+        if not self.conectar():
+            return visitantes
+        try:
+            cursor = self.conn.cursor()
+            cursor.execute("""
+                SELECT visitante_nome, visitante_cpf
+                FROM visitas
+                WHERE morador_id = ?
+            """, (morador_id,))
+            visitantes = cursor.fetchall()
+        except Error as e:
+            print(f"Erro ao listar visitantes do morador: {e}")
+        finally:
+            self.desconectar()
+        return visitantes
+
     def registrar_visita_db(self, nome_visita, cpf_visita, morador_id, adm_id):
+        """
+        Registra uma visita no banco de dados.
+        :param nome_visita: Nome do visitante.
+        :param cpf_visita: CPF do visitante.
+        :param morador_id: ID do morador visitado.
+        :param adm_id: ID do administrador logado no banco de dados.
+        :return: True se o registro for realizado, False caso contrario.
+        """
         if not self.conectar():
             print("ERRO DE CONEXAO")
             return False
@@ -268,4 +375,4 @@ class Banco_de_dados:
             return False
         finally:
             self.desconectar()
->>>>>>> adc9b041dcce15d3051b01dae3efaadfe1c9dc38
+
