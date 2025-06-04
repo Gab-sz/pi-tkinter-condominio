@@ -1,52 +1,59 @@
 import tkinter as tk
+from tkinter import messagebox
 from autenticacao import Autenticacao
+from janela_menu import InterfaceListagens
 
 # Variáveis globais para usar nos metodos
 campo_login = None
 campo_senha = None
-janela = None
+janela_login = None
 
 def autenticar_usuario():
+    global janela_login
     login = campo_login.get()
     senha = campo_senha.get()
 
     if not login or not senha:
-        print("Campos vazios!")
+        tk.messagebox.showwarning("Atenção", "Preencha todos os campos.", parent=janela_login)
         return False
 
     autenticador = Autenticacao()
     sucesso, inf_usuario = autenticador.autenticar_usuario(login, senha)
 
     if sucesso:
-        print(f"Bem vindo, {inf_usuario['nome']}!!!")
+        janela_login.destroy()
+        root_menu = tk.Tk()
+        menu = InterfaceListagens(root_menu, inf_usuario)
+        root_menu.mainloop()
     else:
-        print("Login ou senha incorretos!")
+        tk.messagebox.showerror("Erro de Login", "Login ou senha incorretos!", parent=janela_login)
 
 def criar_janela_login():
-    global campo_login, campo_senha
+    global campo_login, campo_senha, janela_login
 
-    janela = tk.Tk()
-    janela.title("Sistema condominio - Tela inicial")
-    janela.geometry("350x200")
+    janela_login = tk.Tk()
+    janela_login.title("Sistema condominio - Tela inicial")
+    janela_login.geometry("350x200")
 
     # Título
-    tk.Label(janela, text="Bem vindo(a)!", font=("Arial",14)).pack(pady=10)
+    tk.Label(janela_login, text="Bem vindo(a)!", font=("Arial",14)).pack(pady=10)
 
     # Campo Administrador
-    tk.Label(janela, text="Login:").pack()
-    campo_login = tk.Entry(janela)
+    tk.Label(janela_login, text="Login:").pack()
+    campo_login = tk.Entry(janela_login)
     campo_login.pack()
+    campo_login.focus()
 
     # Campo Senha
-    tk.Label(janela, text="Senha:").pack()
-    campo_senha = tk.Entry(janela, show="*")
+    tk.Label(janela_login, text="Senha:").pack()
+    campo_senha = tk.Entry(janela_login, show="*")
     campo_senha.pack()
 
     # Botão
-    tk.Button(janela, text="Entrar", command=autenticar_usuario).pack(pady=10)
+    tk.Button(janela_login, text="Entrar", command=autenticar_usuario).pack(pady=10)
 
     # Loop da janela
-    janela.mainloop()
+    janela_login.mainloop()
 
 # Chamar a função para iniciar a janela
 if __name__ == '__main__':

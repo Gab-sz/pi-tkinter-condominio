@@ -1,22 +1,27 @@
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk, messagebox, Label
 from banco_de_dados import Banco_de_dados
 
 class InterfaceListagens:
-    def __init__(self, root):
+    def __init__(self, root, admin_info):
         """
-        Inicia uma janela de menu com 3 botoes (Listagem de ocorrencia, moradores e visitas)
+        Inicia a janela de menu.
+        :param root: Janela que sera mostrada.
+        :param admin_info: Usuario logado no sistema.
         """
         self.root = root
+        self.admin_info = admin_info
         self.root.title("Sistema Condomínio - Listagens")
-        self.root.geometry("500x300")
+        self.root.geometry("500x250")
 
         self.db = Banco_de_dados()
+
+        tk.Label(root, text=f"Bem vindo(a) {self.admin_info.get('nome')}! ({self.admin_info.get('tipo').capitalize()})", font=("Arial",14)).pack(pady=10)
 
         btn_moradores = tk.Button(root, text="Lista de Moradores", command=self.abrir_janela_moradores)
         btn_moradores.pack(pady=10)
 
-        btn_visitas = tk.Button(root, text="Lista de Visitantes", command=self.abrir_janela_visitas)
+        btn_visitas = tk.Button(root, text="Lista de Visitas", command=self.abrir_janela_visitas)
         btn_visitas.pack(pady=10)
 
         btn_ocorrencias = tk.Button(root, text="Lista de Ocorrências", command=self.abrir_janela_ocorrencias)
@@ -68,7 +73,7 @@ class InterfaceListagens:
         btn_detalhes.pack(side="left", padx=5)
 
         btn_ativar = tk.Button(area_botoes, text="Ativar/Desativar", width=15,
-                               command=lambda: self.alterar_status_morador_selecionado(tree))  # Chama o método correto
+                               command=lambda: self.alterar_status_morador_selecionado(tree))
         btn_ativar.pack(side="left", padx=5)
 
         self.popular_tabela_moradores(tree)
@@ -116,7 +121,7 @@ class InterfaceListagens:
         status_atual = valores_linha[4]
         mudar_status = "Desativar" if status_atual == "Ativo" else "Ativar"
 
-        confirmar = messagebox.askyesno("Confirmar Ação", f"Deseja realmente {mudar_status.lower()} o morador '{nome_morador}' (ID: {morador_id})?", parent=tree.winfo_toplevel())
+        confirmar = messagebox.askyesno("Confirmar Ação", f"Deseja {mudar_status.lower()} o morador '{nome_morador}' (ID: {morador_id})?", parent=tree.winfo_toplevel())
 
         if confirmar:
             sucesso = self.db.modificar_status_morador(morador_id)
@@ -125,7 +130,7 @@ class InterfaceListagens:
                 messagebox.showinfo("Sucesso", f"Status do morador '{nome_morador}' alterado com sucesso!", parent=tree.winfo_toplevel())
                 self.popular_tabela_moradores(tree)
             else:
-                messagebox.showerror("Erro", f"Falha ao alterar o status do morador '{nome_morador}'. Verifique o console.", parent=tree.winfo_toplevel())
+                messagebox.showerror("Erro", f"Falha ao alterar o status do morador '{nome_morador}'.", parent=tree.winfo_toplevel())
 
     def mostrar_detalhes_morador(self, tree):
         """
@@ -226,7 +231,7 @@ class InterfaceListagens:
         Cria uma janela para mostrar todos as visitas feitas.
         """
         janela = tk.Toplevel(self.root)
-        janela.title("Ocorrências Registradas")
+        janela.title("Visitas Registradas")
         janela.geometry("800x400")
 
         frame = tk.Frame(janela)
@@ -241,7 +246,7 @@ class InterfaceListagens:
 
         tree.column("ID", width=40, anchor='center', stretch=tk.NO)
         tree.column("Visitante", width=150)
-        tree.column("CPF", width=300)
+        tree.column("CPF", width=200)
         tree.column("Morador", width=150)
         tree.column("Data/Hora", width=80, anchor='center')
 
@@ -268,18 +273,20 @@ class InterfaceListagens:
         frame = tk.Frame(janela)
         frame.pack(fill="both", expand=True, padx=10, pady=10)
 
-        tree = ttk.Treeview(frame, columns=("ID", "Motivo", "Descrição", "Morador", "Status"), show="headings")
+        tree = ttk.Treeview(frame, columns=("ID", "Motivo", "Descrição", "Morador", "Data/Hora", "Status"), show="headings")
 
         tree.heading("ID", text="ID")
         tree.heading("Motivo", text="Motivo")
         tree.heading("Descrição", text="Descrição")
         tree.heading("Morador", text="Morador")
+        tree.heading("Data/Hora", text="Data/Hora")
         tree.heading("Status", text="Status")
 
         tree.column("ID", width=40, anchor='center', stretch=tk.NO)
-        tree.column("Motivo", width=150)
-        tree.column("Descrição", width=300)
+        tree.column("Motivo", width=100)
+        tree.column("Descrição", width=200)
         tree.column("Morador", width=150)
+        tree.column("Data/Hora", width=100)
         tree.column("Status", width=80, anchor='center')
 
         scrollbar = ttk.Scrollbar(frame, orient="vertical", command=tree.yview)
@@ -288,14 +295,78 @@ class InterfaceListagens:
         scrollbar.pack(side="right", fill="y")
         tree.pack(side="left", fill="both", expand=True)
 
+        area_botoes = tk.Frame(janela)
+        area_botoes.pack(fill="x", padx=10, pady=10)
+
+        tk.Label(area_botoes, text="Modificar para:", anchor="w").pack(fill=tk.X)
+
+        btn_aberto = tk.Button(area_botoes, text="Aberto", width=15,
+                                 command=lambda: self.alterar_status_ocorrencia_selecionada(tree, novo_status='aberto'))
+        btn_aberto.pack(side="left", padx=5)
+
+        btn_andamento = tk.Button(area_botoes, text="Em andamento", width=15,
+                                 command=lambda: self.alterar_status_ocorrencia_selecionada(tree, novo_status='em andamento'))
+        btn_andamento.pack(side="left", padx=5)
+
+        btn_fechado = tk.Button(area_botoes, text="Fechado", width=15,
+                               command=lambda: self.alterar_status_ocorrencia_selecionada(tree, novo_status='fechado'))
+        btn_fechado.pack(side="left", padx=5)
+
+        self.popular_tabela_ocorrencias(tree)
+
+    def popular_tabela_ocorrencias(self, tree):
+        for i in tree.get_children():
+            tree.delete(i)
+
+        # Lista de ocorrencias
         ocorrencias = self.db.listar_ocorrencias()
 
+        # Caso a lista nao possua moradores
+        if not ocorrencias:
+            tree.insert("", "end", values=("", "Nenhuma ocorrencia cadastrada", "", "", ""))
+            return
+
         for oc in ocorrencias:
-            tree.insert("", "end", values=(oc[0], oc[1], oc[2], oc[3], oc[4]))
+            tree.insert("", "end", values=(oc[0], oc[1], oc[2], oc[3], oc[4], oc[5].capitalize()), iid=oc[0])
+
+    def alterar_status_ocorrencia_selecionada(self, tree, novo_status):
+        selection = tree.selection()
+
+        if not selection:
+            messagebox.showwarning("Seleção", "Selecione uma ocorrencia.", parent=tree.winfo_toplevel())
+            return
+
+        if len(selection) > 1:
+            messagebox.showwarning("Seleção", "Selecione apenas uma ocorrenciar.", parent=tree.winfo_toplevel())
+            return
+
+        ocorrencia_id = int(selection[0])
+
+        valores = tree.item(selection[0], 'values')
+        motivo = valores[1]
+        status_atual = valores[5]
+
+        if status_atual == novo_status:
+            print("STATUS É O MESMO")
+            return
+
+        confirmar = messagebox.askyesno("Confirmar Ação", f"Deseja modificar o status da ocorrencia '{motivo}' para: {novo_status.capitalize()}.", parent=tree.winfo_toplevel())
+
+        if confirmar:
+            sucesso = self.db.modificar_status_ocorrencia(novo_status=novo_status, ocorrencia_id=ocorrencia_id)
+
+            if sucesso:
+                messagebox.showinfo("Sucesso", f"Status da ocorrencia modificada para: {novo_status}.", parent=tree.winfo_toplevel())
+                self.popular_tabela_ocorrencias(tree)
+            else:
+                messagebox.showerror("Erro", "Falha ao alterar o status da ocorrencia.", parent=tree.winfo_toplevel())
 
 
 if __name__ == "__main__":
     root = tk.Tk()
     app = InterfaceListagens(root)
     root.mainloop()
+
+
+
 
