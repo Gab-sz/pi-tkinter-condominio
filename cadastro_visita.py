@@ -1,20 +1,19 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 from banco_de_dados import Banco_de_dados
+import re
 
-# Dados para testar
-usuario_teste = {
-    'id': 5,
-    'nome': 'Administrador teste',
-    'tipo': 'sindico'
-}
+def validar_cpf(cpf):
+    padrao = r"^\d{3}\.\d{3}\.\d{3}-\d{2}$"
+    if re.match(padrao, cpf):
+        return True
+    return False
 
 def criar_janela_cadastro_visita(master=None, usuario_logado=None):
-    if usuario_logado is None:
-        print("DADOS DO ADM NAO FORNECIDOS")
-        usuario_logado = usuario_teste
-        print("Usando usuario teste")
-
+    """
+    Cria uma janela para cadasrar a visita.
+    :param usuario_logado: usuario que fez login no sistema.
+    """
     if master:
         janela = tk.Toplevel(master)
         janela.transient(master)
@@ -90,7 +89,15 @@ def criar_janela_cadastro_visita(master=None, usuario_logado=None):
         if morador_id is None:
             print("Nenhum morador selecionado")
 
-        ##Validação aqui
+        if not nome_visita:
+            messagebox.showwarning("Campo Vazio", "O nome do visitante não pode estar vazio.", parent=janela)
+            return
+        if not cpf_visita:
+            messagebox.showwarning("Campo Vazio", "O CPF do visitante não pode estar vazio.", parent=janela)
+            return
+        if not validar_cpf(cpf_visita):
+            messagebox.showwarning("Formato Inválido", "O CPF deve deve estar no formato 'xxx.xxx.xxx-xx'", parent=janela)
+            return
 
         db = Banco_de_dados()
         sucesso = db.registrar_visita_db(nome_visita, cpf_visita, morador_id, admin_id)

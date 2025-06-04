@@ -99,7 +99,13 @@ def criar_janela_cadastro_ocorrencia(master=None, usuario_logado=None):
         if morador_id is None:
             print("Nenhum morador selecionado")
 
-        ##validação AQUIII
+        if not motivo:
+            messagebox.showwarning("Campo Obrigatório", "O campo Motivo não pode estar vazio.", parent=janela)
+            return
+        if not descricao:
+            messagebox.showwarning("Campo Obrigatório", "O campo Descrição Detalhada não pode estar vazio.",
+                                   parent=janela)
+            return
 
         # Conecta no banco e salva
         db = Banco_de_dados()

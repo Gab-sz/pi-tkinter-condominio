@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
+import re
 
 from autenticacao import Autenticacao
 
@@ -54,7 +55,27 @@ def criar_janela_cadastro_morador(master=None):
         bloco = campo_bloco.get()
         apartamento = campo_apartamento.get()
 
-        ## validar aqui
+        if not nome:
+            messagebox.showwarning("Campo Obrigatório", "Campo Nome não pode estar vazio.", parent=janela)
+            return
+        if not telefone:
+            messagebox.showwarning("Campo Obrigatório", "Campo Telefone não pode estar vazio.", parent=janela)
+            return
+        if not validar_telefone(telefone):
+            messagebox.showwarning("Formato Inválido", "O Telefone deve estar no formato '(xx) xxxxx-xxxx'", parent=janela)
+            return
+        if not cpf:
+            messagebox.showwarning("Campo Obrigatório", "Campo CPF não pode estar vazio.", parent=janela)
+            return
+        if not validar_cpf(cpf):
+            messagebox.showwarning("Formato Inválido", "O CPF deve deve estar no formato 'xxx.xxx.xxx-xx'", parent=janela)
+            return
+        if not bloco:
+            messagebox.showwarning("Campo Obrigatório", "Campo Bloco não pode estar vazio.", parent=janela)
+            return
+        if not apartamento:
+            messagebox.showwarning("Campo Obrigatório", "Campo Apartamento não pode estar vazio.", parent=janela)
+            return
 
         autenticador = Autenticacao()
         sucesso = autenticador.registrar_morador_db(nome, telefone, cpf, bloco, apartamento)
@@ -82,6 +103,18 @@ def criar_janela_cadastro_morador(master=None):
         janela.mainloop()
 
     return widgets
+
+def validar_cpf(cpf):
+    padrao = r"^\d{3}\.\d{3}\.\d{3}-\d{2}$"
+    if re.match(padrao, cpf):
+        return True
+    return False
+
+def validar_telefone(telefone):
+    padrao = r"^\(\d{2}\) \d{4,5}-\d{4}$"
+    if re.match(padrao, telefone):
+        return True
+    return False
 
 if __name__ == '__main__':
     criar_janela_cadastro_morador()

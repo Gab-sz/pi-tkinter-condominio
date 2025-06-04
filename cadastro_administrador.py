@@ -2,6 +2,18 @@ import tkinter
 import tkinter as tk
 from tkinter import ttk, messagebox
 from autenticacao import Autenticacao
+import re
+
+def validar_telefone(telefone):
+    padrao = r"^\(\d{2}\) \d{4,5}-\d{4}$"
+    if re.match(padrao, telefone):
+        return True
+    return False
+
+def validar_senha(senha):
+    if len(senha)>=6:
+        return True
+    return False
 
 def criar_janela_cadastro_administrador(master=None):
     if master:
@@ -68,7 +80,27 @@ def criar_janela_cadastro_administrador(master=None):
         senha = campo_senha.get()
         tipo = var_tipo.get()
 
-        ## validar aqui
+        if not nome:
+            messagebox.showwarning("Campo Obrigatório", "O campo Nome Completo não pode estar vazio.", parent=janela)
+            return
+        if not telefone:
+            messagebox.showwarning("Campo Obrigatório", "O campo Telefone não pode estar vazio.", parent=janela)
+            return
+        if not validar_telefone(telefone):
+            messagebox.showwarning("Formato Inválido", "O campo Telefone deve ser no formato '(xx) xxxxx-xxxx'.", parent=janela)
+            return
+        if not login:
+            messagebox.showwarning("Campo Obrigatório", "O campo Login não pode estar vazio.", parent=janela)
+            return
+        if not senha:
+            messagebox.showwarning("Campo Obrigatório", "O campo Senha não pode estar vazio.", parent=janela)
+            return
+        if not validar_senha(senha):
+            messagebox.showwarning("Formato Inválido", "O campo senha deve ter pelo menos 6 caracteres.", parent=janela)
+            return
+        if not tipo:
+            messagebox.showwarning("Seleção Obrigatória", "Selecione o Tipo de Usuário (Síndico ou Porteiro).", parent=janela)
+            return
 
         autenticador = Autenticacao()
         sucesso = autenticador.registrar_administrador_db(nome, telefone, login, senha, tipo)
@@ -98,6 +130,9 @@ def criar_janela_cadastro_administrador(master=None):
     if not master:
         janela.mainloop()
     return widgets
+
+def validar(telefone, senha):
+    telefone
 
 if __name__ == '__main__':
     criar_janela_cadastro_administrador()
