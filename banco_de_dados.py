@@ -273,7 +273,7 @@ class Banco_de_dados:
         try:
             cursor = self.conn.cursor()
             cursor.execute("""
-                SELECT o.id, o.motivo, o.descricao, m.nome, o.status
+                SELECT o.id, o.motivo, o.descricao, m.nome, o.data_hora, o.status
                 FROM ocorrencias o
                 JOIN morador m ON o.morador_id = m.id
             """)
@@ -302,6 +302,32 @@ class Banco_de_dados:
         finally:
             self.desconectar()
         return ocorrencias
+
+    def modificar_status_ocorrencia(self, novo_status, ocorrencia_id):
+        if not self.conectar():
+            print("ERRO DE CONEXAO")
+            return False
+
+        try:
+            cursor = self.conn.cursor()
+            cursor.execute("""
+                UPDATE ocorrencias
+                SET status = ?
+                WHERE id=?
+            """, (novo_status, ocorrencia_id))
+            self.conn.commit()
+
+            if cursor.rowcount>0:
+                print(f"Status da ocorrencia ID:{ocorrencia_id} modificado para '{novo_status}'.")
+                return True
+            else:
+                print(f"Nenhuma ocorrencia foi modificada.")
+                return False
+        except Error as e:
+            print(f"Erro ao modificar status= {e}")
+            return False
+        finally:
+            self.desconectar()
 
     # =========== FUNÇÕES DE VISITAS ================
 
@@ -335,6 +361,7 @@ class Banco_de_dados:
         visitantes = []
         if not self.conectar():
             return visitantes
+
         try:
             cursor = self.conn.cursor()
             cursor.execute("""
@@ -376,3 +403,31 @@ class Banco_de_dados:
         finally:
             self.desconectar()
 
+    # =========== FUNÇÕES DE ADMINISTRAÇÃO ================
+
+    def buscar_administrador(self, login):
+        admin_logado = []
+
+        if not self.conectar():
+            print("Falha no banco de dados")
+            return admin_logado
+
+        try:
+            cursor = self.conn.cursor()
+            cursor.execute("""
+                SELECT * FROM administracao
+                WHERE login = ?
+            """, (login,))
+            admin_logado = cursor.fetchone()
+            print(admin_logado)
+            return admin_logado
+        except Error as e:
+            print(f"Erro ao buscar administrador: {e}")
+            return admin_logado
+        finally:
+            self.desconectar()
+
+if __name__ == '__main__':
+    db = Banco_de_dados()
+    db.conectar()
+    db.buscar_administrador(login='admin')

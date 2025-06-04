@@ -65,7 +65,7 @@ def criar_janela_cadastro_ocorrencia(master=None, usuario_logado=None):
         formato = []
 
         if moradores_ativos:
-            for morador_id, nome, bloco, apt in moradores_ativos:
+            for morador_id, nome, bloco, apt, ativo in moradores_ativos:
                 texto = f"{nome} - Bloco {bloco} Apto {apt}"
                 formato.append(texto)
                 moradores[texto] = morador_id
