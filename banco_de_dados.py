@@ -302,6 +302,12 @@ class Banco_de_dados:
         return ocorrencias
 
     def modificar_status_ocorrencia(self, novo_status, ocorrencia_id):
+        """
+        Altera o status da ocorrencia para outra escolhida.
+        :param novo_status: O novo status que sera dado a ocorrencia.
+        :param ocorrencia_id: O id da ocorrencia que será modificado.
+        :return: Retorna True se alguma linha for modificada, False se nada for modificado.
+        """
         if not self.conectar():
             print("ERRO DE CONEXAO")
             return False
@@ -330,7 +336,10 @@ class Banco_de_dados:
     # =========== FUNÇÕES DE VISITAS ================
 
     def listar_visitas(self):
-        """Retorna uma lista de visitas no formato: (visitante_nome, visitante_cpf, morador_nome, data_visita)"""
+        """
+        Obtem uma lista de todos os visitantes
+        :return: Lista contendo todos os registros de visitas registrados
+        """
         visitas = []
         if not self.conectar():
             return visitas
@@ -445,6 +454,36 @@ class Banco_de_dados:
         finally:
             self.desconectar()
             return adm
+
+    def modificar_status_administrador(self, admin_id):
+        if not self.conectar():
+            print("ERRO DE CONEXAO")
+            return False
+
+        try:
+            cursor = self.conn.cursor()
+            cursor.execute("""
+                UPDATE administracao
+                SET ativo = CASE
+                    WHEN ativo = 1 THEN 0
+                    ELSE 1
+                END
+                WHERE id = ?
+            """, admin_id)
+            self.conn.commit()
+
+            if cursor.rowcount > 0:
+                print(f"Status do administrador ID:{admin_id} modificado.")
+                return True
+            else:
+                print(f"Nenhum administrador com ID {admin_id} encontrado ou status já era o desejado.")
+                return False
+        except Error as e:
+            print(f"Erro ao modificar status do administrador: {e}")
+            return False
+
+        finally:
+            self.desconectar()
 
 if __name__ == '__main__':
     db = Banco_de_dados()

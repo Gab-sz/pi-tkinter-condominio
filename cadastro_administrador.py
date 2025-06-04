@@ -1,6 +1,6 @@
 import tkinter
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
 from autenticacao import Autenticacao
 
 def criar_janela_cadastro_administrador(master=None):
@@ -74,8 +74,10 @@ def criar_janela_cadastro_administrador(master=None):
         sucesso = autenticador.registrar_administrador_db(nome, telefone, login, senha, tipo)
 
         if sucesso:
-            print("CADASTRO FEITO")
-            limpar_campos()
+            messagebox.showinfo("Sucesso", "Administrador cadastrado com sucesso!", parent=janela)
+            janela.destroy()
+        else:
+            messagebox.showerror("Erro", "Falha ao cadastrar Administrador.", parent=janela)
 
     # Botão Cadastrar
     btn_cadastrar = tk.Button(frame_principal, command=cadastrar_administrador, text="Cadastrar Administrador", font=("Arial", 12), bg="#4CAF50", fg="white", relief=tk.FLAT, padx=10, pady=5)
