@@ -512,7 +512,6 @@ class InterfaceListagens:
             return
 
         valores_linha = tree.item(selection[0], "values")
-        nome_adm = valores_linha[1]
         status_atual = valores_linha[4]
         mudar_status = "Desativar" if status_atual == "Ativo" else "Ativar"
 
@@ -522,7 +521,7 @@ class InterfaceListagens:
         if confirmar:
             sucesso = self.db.modificar_status_administrador(admin_id)
             if sucesso:
-                messagebox.showinfo("Sucesso", f"Status do administrador ", parent=tree.winfo_toplevel())
+                messagebox.showinfo("Sucesso", f"Status do administrador modificado.", parent=tree.winfo_toplevel())
 
                 self.popular_tabela_adm(tree)
             else:

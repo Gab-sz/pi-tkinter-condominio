@@ -469,7 +469,7 @@ class Banco_de_dados:
                     ELSE 1
                 END
                 WHERE id = ?
-            """, admin_id)
+            """, (admin_id,))
             self.conn.commit()
 
             if cursor.rowcount > 0:
