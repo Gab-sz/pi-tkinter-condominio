@@ -347,7 +347,7 @@ class InterfaceListagens:
         status_atual = valores[5]
 
         if status_atual == novo_status:
-            print("STATUS É O MESMO")
+            messagebox.showinfo("STATUS É O MESMO")
             return
 
         confirmar = messagebox.askyesno("Confirmar Ação", f"Deseja modificar o status da ocorrencia '{motivo}' para: {novo_status.capitalize()}.", parent=tree.winfo_toplevel())

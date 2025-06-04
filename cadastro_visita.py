@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import ttk, messagebox
 from banco_de_dados import Banco_de_dados
+import re
 
 # Dados para testar
 usuario_teste = {
