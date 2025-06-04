@@ -1,11 +1,13 @@
-import tkinter
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import messagebox
+
 from autenticacao import Autenticacao
 
 def criar_janela_cadastro_morador(master=None):
     if master:
         janela = tk.Toplevel(master)
+        janela.transient(master)
+        janela.grab_set()
     else:
         janela = tk.Tk()
 
@@ -23,6 +25,7 @@ def criar_janela_cadastro_morador(master=None):
     tk.Label(frame_principal, text="Nome Completo:", anchor="w").pack(fill=tk.X)
     campo_nome = tk.Entry(frame_principal, width=40)
     campo_nome.pack(pady=(0, 10), fill=tk.X)
+    campo_nome.focus()
 
     # Telefone
     tk.Label(frame_principal, text="Telefone:", anchor="w").pack(fill=tk.X)
@@ -44,13 +47,6 @@ def criar_janela_cadastro_morador(master=None):
     campo_apartamento = tk.Entry(frame_principal, width=40)
     campo_apartamento.pack(pady=(0, 15), fill=tk.X)
 
-    def limpar_campos():
-        campo_nome.delete(0, tkinter.END)
-        campo_telefone.delete(0, tkinter.END)
-        campo_cpf.delete(0, tkinter.END)
-        campo_bloco.delete(0, tkinter.END)
-        campo_apartamento.delete(0, tkinter.END)
-
     def cadastrar_morador():
         nome = campo_nome.get()
         telefone = campo_telefone.get()
@@ -64,8 +60,10 @@ def criar_janela_cadastro_morador(master=None):
         sucesso = autenticador.registrar_morador_db(nome, telefone, cpf, bloco, apartamento)
 
         if sucesso:
-            messagebox.showinfo("CADASTRO FEITO")
-            limpar_campos()
+            messagebox.showinfo("Sucesso", "Morador cadastrado com sucesso!", parent=janela)
+            janela.destroy()
+        else:
+            messagebox.showerror("Erro", "Falha ao cadastrar morador.", parent=janela)
 
     btn_cadastrar = tk.Button(frame_principal, text="Cadastrar Morador", command=cadastrar_morador, font=("Arial", 12), bg="#4CAF50", fg="white", relief=tk.FLAT, padx=10, pady=5)
     btn_cadastrar.pack()

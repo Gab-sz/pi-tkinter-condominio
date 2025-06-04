@@ -1,5 +1,4 @@
 import tkinter as tk
-from tkinter import ttk
 from tkinter import ttk, messagebox
 from banco_de_dados import Banco_de_dados
 
@@ -17,12 +16,14 @@ def criar_janela_cadastro_ocorrencia(master=None, usuario_logado=None):
     :param usuario_logado: Usuario que entrou no sistema. Recebe esses dados da janela anterior.
     """
     if usuario_logado is None:
-        messagebox.showwarning("DADOS DO ADM NAO FORNECIDOS")
+        print("DADOS DO ADM NAO FORNECIDOS")
         usuario_logado = usuario_teste
-        messagebox.showwarning("Usando usuario teste")
+        print("Usando usuario teste")
 
     if master:
         janela = tk.Toplevel(master)
+        janela.transient(master)
+        janela.grab_set()
     else:
         janela = tk.Tk()
 
@@ -40,6 +41,7 @@ def criar_janela_cadastro_ocorrencia(master=None, usuario_logado=None):
     tk.Label(frame_principal, text="Motivo:", anchor="w").pack(fill=tk.X)
     campo_motivo = tk.Entry(frame_principal, width=50)
     campo_motivo.pack(pady=(0, 10), fill=tk.X)
+    campo_motivo.focus()
 
     # Descrição
     tk.Label(frame_principal, text="Descrição Detalhada:", anchor="w").pack(fill=tk.X)
@@ -95,18 +97,19 @@ def criar_janela_cadastro_ocorrencia(master=None, usuario_logado=None):
         admin_id = usuario_logado['id']
 
         if morador_id is None:
-            messagebox.showwarning("Nenhum morador selecionado")
+            print("Nenhum morador selecionado")
 
         ##validação AQUIII
 
         # Conecta no banco e salva
         db = Banco_de_dados()
-        db.conectar()
         sucesso = db.registrar_ocorrencia_db(motivo, descricao, morador_id, admin_id)
 
         if sucesso:
-            messagebox.showwarning(f"Ocorrencia registrada!")
-            ##DESTROI A JANELA E ABRE A LISTA DE OCORRENCIA
+            messagebox.showinfo("Sucesso", "Cadastro de ocorrencia efetuado.", parent=janela)
+            janela.destroy()
+        else:
+            messagebox.showerror("Erro", "Falha ao registrar ocorrencia.", parent=janela)
 
     # Botao
     btn_registrar = tk.Button(frame_principal, command=cadastrar_ocorrencia, text="Registrar Ocorrência",

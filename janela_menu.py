@@ -1,6 +1,10 @@
 import tkinter as tk
-from tkinter import ttk, messagebox, Label
+from tkinter import ttk, messagebox
 from banco_de_dados import Banco_de_dados
+from cadastro_morador import criar_janela_cadastro_morador
+from cadastro_visita import criar_janela_cadastro_visita
+from cadastro_ocorrencia import criar_janela_cadastro_ocorrencia
+from cadastro_administrador import criar_janela_cadastro_administrador
 
 class InterfaceListagens:
     def __init__(self, root, admin_info):
@@ -27,6 +31,9 @@ class InterfaceListagens:
         btn_ocorrencias = tk.Button(root, text="Lista de Ocorrências", command=self.abrir_janela_ocorrencias)
         btn_ocorrencias.pack(pady=10)
 
+        btn_ocorrencias = tk.Button(root, text="Lista de Administradores", command=self.abrir_janela_adm)
+        btn_ocorrencias.pack(pady=10)
+
     #============ TELA DE MORADORES ==============
 
     def abrir_janela_moradores(self):
@@ -36,6 +43,9 @@ class InterfaceListagens:
         janela = tk.Toplevel(self.root)
         janela.title("Moradores Cadastrados")
         janela.geometry("750x400")
+
+        janela.transient(self.root)
+        janela.grab_set()
 
         tree_frame = tk.Frame(janela)
         tree_frame.pack(fill="both", expand=True, padx=10, pady=(10, 0))
@@ -76,7 +86,16 @@ class InterfaceListagens:
                                command=lambda: self.alterar_status_morador_selecionado(tree))
         btn_ativar.pack(side="left", padx=5)
 
+        btn_cadastrar = tk.Button(area_botoes, text="Cadastrar Morador", width=15,
+                                  command=lambda: self.abrir_cadastro_morador(janela, tree))
+        btn_cadastrar.pack(side="right", padx=5)
+
         self.popular_tabela_moradores(tree)
+        janela.wait_window()
+
+    def abrir_cadastro_morador(self, master_window, tree_view):
+        cadastro_widgets = criar_janela_cadastro_morador(master=master_window)
+        cadastro_widgets["janela"].bind("<Destroy>", lambda e: self.popular_tabela_moradores(tree_view))
 
     def popular_tabela_moradores(self, tree):
         """
@@ -158,6 +177,8 @@ class InterfaceListagens:
         janela_detalhes = tk.Toplevel(self.root)
         janela_detalhes.title(f"Detalhes do Morador: {nome}")
         janela_detalhes.geometry("600x400")
+        janela_detalhes.transient(tree.winfo_toplevel())
+        janela_detalhes.grab_set()
 
         main_frame = tk.Frame(janela_detalhes)
         main_frame.pack(fill="both", expand=True, padx=10, pady=10)
@@ -190,6 +211,7 @@ class InterfaceListagens:
 
         self.carregar_ocorrencias_morador(morador_id, tree_ocorrencias)
         self.carregar_visitantes_morador(morador_id, tree_visitantes)
+        janela_detalhes.wait_window()
 
     def carregar_ocorrencias_morador(self, morador_id, tree):
         """
@@ -231,8 +253,10 @@ class InterfaceListagens:
         Cria uma janela para mostrar todos as visitas feitas.
         """
         janela = tk.Toplevel(self.root)
-        janela.title("Visitas Registradas")
+        janela.title("Visitantes Registrados")
         janela.geometry("800x400")
+        janela.transient(self.root)
+        janela.grab_set()
 
         frame = tk.Frame(janela)
         frame.pack(fill="both", expand=True, padx=10, pady=10)
@@ -256,9 +280,30 @@ class InterfaceListagens:
         tree.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
 
+        area_botoes = tk.Frame(janela)
+        area_botoes.pack(fill="x", padx=10, pady=10)
+
+        btn_cadastrar_visita = tk.Button(area_botoes, text="Cadastrar Visita", width=15,
+                                         command=lambda: self.abrir_cadastro_visita(janela, tree))
+        btn_cadastrar_visita.pack(side="right", padx=5)
+
+        self.popular_tabela_visitas(tree)
+        janela.wait_window()
+
+    def abrir_cadastro_visita(self, master, tree):
+        cadastro_widgets = criar_janela_cadastro_visita(master=master, usuario_logado=self.admin_info)
+        cadastro_widgets["janela"].bind("<Destroy>", lambda e: self.popular_tabela_visitas(tree))
+
+    def popular_tabela_visitas(self, tree):
+        for i in tree.get_children():
+            tree.delete(i)
+
         visitas = self.db.listar_visitas()
-        for visita in visitas:
-            tree.insert("", "end", values=(visita[0], visita[1], visita[2], visita[3], visita[4]))
+        if visitas:
+            for visita in visitas:
+                tree.insert("", "end", values=(visita[0], visita[1], visita[2], visita[3], visita[4]), iid=visita[0])
+        else:
+            tree.insert("", "end", values=("", "Nenhuma visita registrada", "", "", ""), iid="no_visitas")
 
     # ============ TELA DE OCORRENCIAS ==============
 
@@ -269,6 +314,8 @@ class InterfaceListagens:
         janela = tk.Toplevel(self.root)
         janela.title("Ocorrências Registradas")
         janela.geometry("800x400")
+        janela.transient(self.root)
+        janela.grab_set()
 
         frame = tk.Frame(janela)
         frame.pack(fill="both", expand=True, padx=10, pady=10)
@@ -312,7 +359,16 @@ class InterfaceListagens:
                                command=lambda: self.alterar_status_ocorrencia_selecionada(tree, novo_status='fechado'))
         btn_fechado.pack(side="left", padx=5)
 
+        btn_cadastrar_ocorrencia = tk.Button(area_botoes, text="Cadastrar Ocorrência", width=18,
+                                             command=lambda: self.abrir_cadastro_ocorrencia(janela, tree))
+        btn_cadastrar_ocorrencia.pack(side="right", padx=5)
+
         self.popular_tabela_ocorrencias(tree)
+        janela.wait_window()
+
+    def abrir_cadastro_ocorrencia(self, master, tree):
+        cadastro_widgets = criar_janela_cadastro_ocorrencia(master=master, usuario_logado=self.admin_info)
+        cadastro_widgets["janela"].bind("<Destroy>", lambda e: self.popular_tabela_ocorrencias(tree))
 
     def popular_tabela_ocorrencias(self, tree):
         for i in tree.get_children():
@@ -361,12 +417,113 @@ class InterfaceListagens:
             else:
                 messagebox.showerror("Erro", "Falha ao alterar o status da ocorrencia.", parent=tree.winfo_toplevel())
 
+    # ============ TELA DE ADM ==============
 
-if __name__ == "__main__":
-    root = tk.Tk()
-    app = InterfaceListagens(root)
-    root.mainloop()
+    def abrir_janela_adm(self):
+        """
+        Cria uma janela para mostrar todos os administradores.
+        """
+        janela = tk.Toplevel(self.root)
+        janela.title("Administradores Cadastrados")
+        janela.geometry("750x400")
+        janela.transient(self.root)
+        janela.grab_set()
 
+        tree_frame = tk.Frame(janela)
+        tree_frame.pack(fill="both", expand=True, padx=10, pady=(10, 0))
 
+        # DEFINIÇÃO DAS COLUNAS
+        colunas = ("ID", "Nome", "Telefone", "Tipo", "Status")
+        tree = ttk.Treeview(tree_frame, columns=colunas, show="headings")
 
+        # CABEÇALHOS
+        tree.heading("ID", text="ID")
+        tree.heading("Nome", text="Nome")
+        tree.heading("Telefone", text="Telefone")
+        tree.heading("Tipo", text="Tipo")
+        tree.heading("Status", text="Status")
 
+        # LARGURA
+        tree.column("ID", width=40, anchor="center", stretch=tk.NO)
+        tree.column("Nome", width=250)
+        tree.column("Telefone", width=150)
+        tree.column("Tipo", width=100, anchor="center")
+        tree.column("Status", width=80, anchor="center")
+
+        scrollbar = ttk.Scrollbar(tree_frame, orient="vertical", command=tree.yview)
+        tree.configure(yscrollcommand=scrollbar.set)
+
+        tree.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
+
+        # LOCAL ONDE FICA OS BOTOES
+        area_botoes = tk.Frame(janela)
+        area_botoes.pack(fill="x", padx=10, pady=10)
+
+        # Botão Ativar/Desativar
+        btn_ativar_adm = tk.Button(area_botoes, text="Ativar/Desativar", width=15,
+                                   command=lambda: self.alterar_status_adm_selecionado(tree))
+        btn_ativar_adm.pack(side="left", padx=5)
+
+        # Botão Cadastrar Administrador (NOVO)
+        btn_cadastrar_adm = tk.Button(area_botoes, text="Cadastrar Admin", width=15,
+                                      command=lambda: self.abrir_cadastro_administrador(janela, tree))
+        btn_cadastrar_adm.pack(side="right", padx=5)
+
+        self.popular_tabela_adm(tree)
+        janela.wait_window()
+
+    def abrir_cadastro_administrador(self, master, tree):
+        cadastro_widgets = criar_janela_cadastro_administrador(master=master)
+        cadastro_widgets["janela"].bind("<Destroy>", lambda e: self.popular_tabela_adm(tree))
+
+    def popular_tabela_adm(self, tree):
+        for i in tree.get_children():
+            tree.delete(i)
+
+        administradores = self.db.listar_adm()
+
+        if not administradores:
+            tree.insert("", "end", values=("", "Nenhum administrador cadastrado", "", "", ""), iid="no_adm")
+            return
+
+        for admin in administradores:
+            admin_id, nome, login, tipo, ativo_status = admin
+            status_texto = "Ativo" if ativo_status == 1 else "Inativo"
+            tree.insert("", "end", values=(admin_id, nome, login, tipo.capitalize(), status_texto), iid=admin_id)
+
+    def alterar_status_adm_selecionado(self, tree):
+        selection = tree.selection()
+
+        if not selection or selection[0] == "no_adm":
+            messagebox.showwarning("Seleção", "Selecione um administrador válido da lista.",
+                                   parent=tree.winfo_toplevel())
+            return
+
+        if len(selection) > 1:
+            messagebox.showwarning("Seleção", "Selecione apenas um administrador.", parent=tree.winfo_toplevel())
+            return
+
+        admin_id = int(selection[0])
+
+        if admin_id == self.admin_info.get("id"):
+            messagebox.showerror("Ação Inválida", "Você não pode desativar seu próprio usuário.",
+                                 parent=tree.winfo_toplevel())
+            return
+
+        valores_linha = tree.item(selection[0], "values")
+        status_atual = valores_linha[4]
+        mudar_status = "Desativar" if status_atual == "Ativo" else "Ativar"
+
+        confirmar = messagebox.askyesno("Confirmar Ação", f"Deseja {mudar_status.lower()} o administrador ",
+                                        parent=tree.winfo_toplevel())
+
+        if confirmar:
+            sucesso = self.db.modificar_status_administrador(admin_id)
+            if sucesso:
+                messagebox.showinfo("Sucesso", f"Status do administrador modificado.", parent=tree.winfo_toplevel())
+
+                self.popular_tabela_adm(tree)
+            else:
+                messagebox.showerror("Erro", f"Falha ao alterar o status do administrador ",
+                                     parent=tree.winfo_toplevel())
