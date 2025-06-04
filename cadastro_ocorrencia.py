@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
 from banco_de_dados import Banco_de_dados
 
 # Dados para testar
@@ -22,6 +22,8 @@ def criar_janela_cadastro_ocorrencia(master=None, usuario_logado=None):
 
     if master:
         janela = tk.Toplevel(master)
+        janela.transient(master)
+        janela.grab_set()
     else:
         janela = tk.Tk()
 
@@ -39,6 +41,7 @@ def criar_janela_cadastro_ocorrencia(master=None, usuario_logado=None):
     tk.Label(frame_principal, text="Motivo:", anchor="w").pack(fill=tk.X)
     campo_motivo = tk.Entry(frame_principal, width=50)
     campo_motivo.pack(pady=(0, 10), fill=tk.X)
+    campo_motivo.focus()
 
     # Descrição
     tk.Label(frame_principal, text="Descrição Detalhada:", anchor="w").pack(fill=tk.X)
@@ -100,12 +103,13 @@ def criar_janela_cadastro_ocorrencia(master=None, usuario_logado=None):
 
         # Conecta no banco e salva
         db = Banco_de_dados()
-        db.conectar()
         sucesso = db.registrar_ocorrencia_db(motivo, descricao, morador_id, admin_id)
 
         if sucesso:
-            print(f"Ocorrencia registrada!")
-            ##DESTROI A JANELA E ABRE A LISTA DE OCORRENCIA
+            messagebox.showinfo("Sucesso", "Cadastro de ocorrencia efetuado.", parent=janela)
+            janela.destroy()
+        else:
+            messagebox.showerror("Erro", "Falha ao registrar ocorrencia.", parent=janela)
 
     # Botao
     btn_registrar = tk.Button(frame_principal, command=cadastrar_ocorrencia, text="Registrar Ocorrência",

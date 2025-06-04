@@ -1,10 +1,10 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
 from banco_de_dados import Banco_de_dados
 
 # Dados para testar
 usuario_teste = {
-    'id': 1,
+    'id': 5,
     'nome': 'Administrador teste',
     'tipo': 'sindico'
 }
@@ -17,6 +17,8 @@ def criar_janela_cadastro_visita(master=None, usuario_logado=None):
 
     if master:
         janela = tk.Toplevel(master)
+        janela.transient(master)
+        janela.grab_set()
     else:
         janela = tk.Tk()
 
@@ -34,6 +36,7 @@ def criar_janela_cadastro_visita(master=None, usuario_logado=None):
     tk.Label(frame_principal, text="Nome do Visitante:", anchor="w").pack(fill=tk.X)
     campo_nome_visita = tk.Entry(frame_principal, width=50)
     campo_nome_visita.pack(pady=(0, 10), fill=tk.X)
+    campo_nome_visita.focus()
 
     # cpf visitante
     tk.Label(frame_principal, text="CPF do Visitante:", anchor="w").pack(fill=tk.X)
@@ -77,7 +80,7 @@ def criar_janela_cadastro_visita(master=None, usuario_logado=None):
             combo_morador.set(formato[0])
             combo_morador['state'] = 'disabled'
 
-    def registrar_visita():
+    def cadastrar_visita():
         nome_visita = campo_nome_visita.get().strip()
         cpf_visita = campo_cpf_visita.get().strip()
         morador_selecionado = combo_morador.get()
@@ -90,17 +93,20 @@ def criar_janela_cadastro_visita(master=None, usuario_logado=None):
         ##Validação aqui
 
         db = Banco_de_dados()
-        db.conectar()
         sucesso = db.registrar_visita_db(nome_visita, cpf_visita, morador_id, admin_id)
 
         if sucesso:
-            print("VISITA REGISTRADA")
-            ##DESTRUIR A JANELA
+            messagebox.showinfo("Sucesso", "Cadastro de visita efetuado.", parent=janela)
+            janela.destroy()
+        else:
+            messagebox.showerror("Erro", "Falha ao registrar a visita.", parent=janela)
 
     # Botao para registrar
-    btn_registrar = tk.Button(frame_principal, text="Registrar Visita", command=registrar_visita,
+    btn_registrar = tk.Button(frame_principal, text="Registrar Visita", command=cadastrar_visita,
                               font=("Arial", 12), bg="#4CAF50", fg="white", relief=tk.FLAT, padx=10, pady=5)
     btn_registrar.pack()
+
+    janela.bind('<Return>', lambda event=None: btn_registrar.invoke())
 
     popular_moradores()
     widgets = {

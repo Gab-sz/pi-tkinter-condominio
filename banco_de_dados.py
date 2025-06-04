@@ -166,7 +166,6 @@ class Banco_de_dados:
                 SELECT id, nome, bloco, apartamento, ativo
                 FROM morador
                 WHERE ativo=1
-                ORDER BY nome ASC
             """)
             moradores = cursor.fetchall()
         except Error as e:
@@ -190,7 +189,6 @@ class Banco_de_dados:
             cursor.execute("""
                 SELECT id, nome, bloco, apartamento, ativo
                 FROM morador
-                ORDER BY nome ASC
             """)
             moradores = cursor.fetchall()
         except Error as e:
@@ -426,6 +424,27 @@ class Banco_de_dados:
             return admin_logado
         finally:
             self.desconectar()
+
+    def listar_adm(self):
+        """
+        Busca uma lista com todos os adm do sistema
+        """
+        adm = []
+        if not self.conectar():
+            return adm
+
+        try:
+            cursor = self.conn.cursor()
+            cursor.execute("""
+                SELECT id, nome, telefone, tipo, ativo
+                FROM administracao
+            """)
+            adm = cursor.fetchall()
+        except Error as e:
+            print(f"Erro ao listar administradores: {e}")
+        finally:
+            self.desconectar()
+            return adm
 
 if __name__ == '__main__':
     db = Banco_de_dados()

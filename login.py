@@ -1,6 +1,9 @@
 import tkinter as tk
 from tkinter import messagebox
+from webbrowser import Error
+
 from autenticacao import Autenticacao
+from banco_de_dados import Banco_de_dados
 from janela_menu import InterfaceListagens
 
 # Variáveis globais para usar nos metodos
@@ -30,6 +33,14 @@ def autenticar_usuario():
 
 def criar_janela_login():
     global campo_login, campo_senha, janela_login
+
+    try:
+        db = Banco_de_dados()
+        db.conectar(criar_tabelas=True)
+    except Error as e:
+        print(f"Erro: {e}")
+    finally:
+        db.desconectar()
 
     janela_login = tk.Tk()
     janela_login.title("Sistema condominio - Tela inicial")
