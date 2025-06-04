@@ -1,4 +1,8 @@
 import tkinter as tk
+<<<<<<< HEAD
+=======
+from tkinter import ttk
+>>>>>>> d6d471f59afc4bcc6995ec0c78e48c526a2feae4
 from tkinter import ttk, messagebox
 from banco_de_dados import Banco_de_dados
 
@@ -11,9 +15,9 @@ usuario_teste = {
 
 def criar_janela_cadastro_visita(master=None, usuario_logado=None):
     if usuario_logado is None:
-        print("DADOS DO ADM NAO FORNECIDOS")
+        messagebox.showwarning("DADOS DO ADM NAO FORNECIDOS")
         usuario_logado = usuario_teste
-        print("Usando usuario teste")
+        messagebox.showwarning("Usando usuario teste")
 
     if master:
         janela = tk.Toplevel(master)
@@ -88,7 +92,7 @@ def criar_janela_cadastro_visita(master=None, usuario_logado=None):
         admin_id = usuario_logado['id']
 
         if morador_id is None:
-            print("Nenhum morador selecionado")
+            messagebox.showwarning("Nenhum morador selecionado")
 
         ##Validação aqui
 
@@ -96,10 +100,15 @@ def criar_janela_cadastro_visita(master=None, usuario_logado=None):
         sucesso = db.registrar_visita_db(nome_visita, cpf_visita, morador_id, admin_id)
 
         if sucesso:
+<<<<<<< HEAD
             messagebox.showinfo("Sucesso", "Cadastro de visita efetuado.", parent=janela)
             janela.destroy()
         else:
             messagebox.showerror("Erro", "Falha ao registrar a visita.", parent=janela)
+=======
+            messagebox.showwarning("VISITA REGISTRADA")
+            ##DESTRUIR A JANELA
+>>>>>>> d6d471f59afc4bcc6995ec0c78e48c526a2feae4
 
     # Botao para registrar
     btn_registrar = tk.Button(frame_principal, text="Registrar Visita", command=cadastrar_visita,
