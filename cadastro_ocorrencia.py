@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+from tkinter import ttk, messagebox
 from banco_de_dados import Banco_de_dados
 
 # Dados para testar
@@ -16,9 +17,9 @@ def criar_janela_cadastro_ocorrencia(master=None, usuario_logado=None):
     :param usuario_logado: Usuario que entrou no sistema. Recebe esses dados da janela anterior.
     """
     if usuario_logado is None:
-        print("DADOS DO ADM NAO FORNECIDOS")
+        messagebox.showwarning("DADOS DO ADM NAO FORNECIDOS")
         usuario_logado = usuario_teste
-        print("Usando usuario teste")
+        messagebox.showwarning("Usando usuario teste")
 
     if master:
         janela = tk.Toplevel(master)
@@ -94,7 +95,7 @@ def criar_janela_cadastro_ocorrencia(master=None, usuario_logado=None):
         admin_id = usuario_logado['id']
 
         if morador_id is None:
-            print("Nenhum morador selecionado")
+            messagebox.showwarning("Nenhum morador selecionado")
 
         ##validação AQUIII
 
@@ -104,7 +105,7 @@ def criar_janela_cadastro_ocorrencia(master=None, usuario_logado=None):
         sucesso = db.registrar_ocorrencia_db(motivo, descricao, morador_id, admin_id)
 
         if sucesso:
-            print(f"Ocorrencia registrada!")
+            messagebox.showwarning(f"Ocorrencia registrada!")
             ##DESTROI A JANELA E ABRE A LISTA DE OCORRENCIA
 
     # Botao

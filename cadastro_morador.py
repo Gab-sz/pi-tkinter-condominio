@@ -1,5 +1,6 @@
 import tkinter
 import tkinter as tk
+from tkinter import ttk, messagebox
 from autenticacao import Autenticacao
 
 def criar_janela_cadastro_morador(master=None):
@@ -63,7 +64,7 @@ def criar_janela_cadastro_morador(master=None):
         sucesso = autenticador.registrar_morador_db(nome, telefone, cpf, bloco, apartamento)
 
         if sucesso:
-            print("CADASTRO FEITO")
+            messagebox.showinfo("CADASTRO FEITO")
             limpar_campos()
 
     btn_cadastrar = tk.Button(frame_principal, text="Cadastrar Morador", command=cadastrar_morador, font=("Arial", 12), bg="#4CAF50", fg="white", relief=tk.FLAT, padx=10, pady=5)

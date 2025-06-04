@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+from tkinter import ttk, messagebox
 from banco_de_dados import Banco_de_dados
 
 # Dados para testar
@@ -11,9 +12,9 @@ usuario_teste = {
 
 def criar_janela_cadastro_visita(master=None, usuario_logado=None):
     if usuario_logado is None:
-        print("DADOS DO ADM NAO FORNECIDOS")
+        messagebox.showwarning("DADOS DO ADM NAO FORNECIDOS")
         usuario_logado = usuario_teste
-        print("Usando usuario teste")
+        messagebox.showwarning("Usando usuario teste")
 
     if master:
         janela = tk.Toplevel(master)
@@ -85,7 +86,7 @@ def criar_janela_cadastro_visita(master=None, usuario_logado=None):
         admin_id = usuario_logado['id']
 
         if morador_id is None:
-            print("Nenhum morador selecionado")
+            messagebox.showwarning("Nenhum morador selecionado")
 
         ##Validação aqui
 
@@ -94,7 +95,7 @@ def criar_janela_cadastro_visita(master=None, usuario_logado=None):
         sucesso = db.registrar_visita_db(nome_visita, cpf_visita, morador_id, admin_id)
 
         if sucesso:
-            print("VISITA REGISTRADA")
+            messagebox.showwarning("VISITA REGISTRADA")
             ##DESTRUIR A JANELA
 
     # Botao para registrar
