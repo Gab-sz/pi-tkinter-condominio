@@ -450,14 +450,14 @@ class Banco_de_dados:
             """)
             adm = cursor.fetchall()
         except Error as e:
-            print(f"Erro ao listar administradores: {e}")
+            messagebox.showerror(f"Erro ao listar administradores: {e}")
         finally:
             self.desconectar()
             return adm
 
     def modificar_status_administrador(self, admin_id):
         if not self.conectar():
-            print("ERRO DE CONEXAO")
+            messagebox.showerror("ERRO DE CONEXAO")
             return False
 
         try:
@@ -473,13 +473,13 @@ class Banco_de_dados:
             self.conn.commit()
 
             if cursor.rowcount > 0:
-                print(f"Status do administrador ID:{admin_id} modificado.")
+                messagebox.showinfo(f"Status do administrador ID:{admin_id} modificado.")
                 return True
             else:
-                print(f"Nenhum administrador com ID {admin_id} encontrado ou status já era o desejado.")
+                messagebox.showinfo(f"Nenhum administrador com ID {admin_id} encontrado ou status já era o desejado.")
                 return False
         except Error as e:
-            print(f"Erro ao modificar status do administrador: {e}")
+            messagebox.showerror(f"Erro ao modificar status do administrador: {e}")
             return False
 
         finally:

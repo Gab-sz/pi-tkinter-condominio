@@ -38,7 +38,7 @@ def criar_janela_login():
         db = Banco_de_dados()
         db.conectar(criar_tabelas=True)
     except Error as e:
-        print(f"Erro: {e}")
+        messagebox.showerror(f"Erro: {e}")
     finally:
         db.desconectar()
 

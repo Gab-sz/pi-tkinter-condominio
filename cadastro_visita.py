@@ -12,9 +12,9 @@ usuario_teste = {
 
 def criar_janela_cadastro_visita(master=None, usuario_logado=None):
     if usuario_logado is None:
-        print("DADOS DO ADM NAO FORNECIDOS")
+        messagebox.showwarning("DADOS DO ADM NAO FORNECIDOS")
         usuario_logado = usuario_teste
-        print("Usando usuario teste")
+        messagebox.showinfo("Usando usuario teste")
 
     if master:
         janela = tk.Toplevel(master)
@@ -89,7 +89,7 @@ def criar_janela_cadastro_visita(master=None, usuario_logado=None):
         admin_id = usuario_logado['id']
 
         if morador_id is None:
-            print("Nenhum morador selecionado")
+            messagebox.showwarning("Nenhum morador selecionado")
 
         ##Validação aqui
 
