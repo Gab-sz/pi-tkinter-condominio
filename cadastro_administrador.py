@@ -131,8 +131,6 @@ def criar_janela_cadastro_administrador(master=None):
         janela.mainloop()
     return widgets
 
-def validar(telefone, senha):
-    telefone
 
 if __name__ == '__main__':
     criar_janela_cadastro_administrador()

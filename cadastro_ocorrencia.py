@@ -2,12 +2,6 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from banco_de_dados import Banco_de_dados
 
-# Dados para testar
-usuario_teste = {
-    'id': 1,
-    'nome': 'Administrador teste',
-    'tipo': 'sindico'
-}
 
 def criar_janela_cadastro_ocorrencia(master=None, usuario_logado=None):
     """
@@ -15,11 +9,6 @@ def criar_janela_cadastro_ocorrencia(master=None, usuario_logado=None):
     :param master: janela "pai"
     :param usuario_logado: Usuario que entrou no sistema. Recebe esses dados da janela anterior.
     """
-    if usuario_logado is None:
-        print("DADOS DO ADM NAO FORNECIDOS")
-        usuario_logado = usuario_teste
-        print("Usando usuario teste")
-
     if master:
         janela = tk.Toplevel(master)
         janela.transient(master)
@@ -97,7 +86,7 @@ def criar_janela_cadastro_ocorrencia(master=None, usuario_logado=None):
         admin_id = usuario_logado['id']
 
         if morador_id is None:
-            print("Nenhum morador selecionado")
+            messagebox.showwarning("Nenhum morador selecionado")
 
         if not motivo:
             messagebox.showwarning("Campo Obrigatório", "O campo Motivo não pode estar vazio.", parent=janela)
@@ -140,4 +129,3 @@ def criar_janela_cadastro_ocorrencia(master=None, usuario_logado=None):
 
 if __name__ == '__main__':
     criar_janela_cadastro_ocorrencia()
-

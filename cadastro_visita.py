@@ -87,7 +87,7 @@ def criar_janela_cadastro_visita(master=None, usuario_logado=None):
         admin_id = usuario_logado['id']
 
         if morador_id is None:
-            print("Nenhum morador selecionado")
+            messagebox.showwarning("Nenhum morador selecionado")
 
         if not nome_visita:
             messagebox.showwarning("Campo Vazio", "O nome do visitante não pode estar vazio.", parent=janela)

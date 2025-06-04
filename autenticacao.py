@@ -1,5 +1,6 @@
 import bcrypt
 from banco_de_dados import Banco_de_dados
+from tkinter import messagebox
 
 class Autenticacao:
     def __init__(self):

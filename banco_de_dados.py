@@ -1,5 +1,6 @@
 import os
 from sqlite3 import Error, connect
+from tkinter import messagebox
 
 class Banco_de_dados:
     def __init__(self, db_nome="condominio.sqlite"):
@@ -24,7 +25,7 @@ class Banco_de_dados:
                 self.criar_tabelas()
             return True
         except Error as e:
-            print(f"Erro ao conectar: {e}")
+            messagebox.showerror(f"Erro ao conectar: {e}")
             self.conn = None
             return False
 
@@ -37,7 +38,7 @@ class Banco_de_dados:
                 self.conn.close()
                 self.conn = None
             except Error as e:
-                print(f"Erro ao desconectar: {e}")
+                messagebox.showerror(f"Erro ao desconectar: {e}")
 
     # =========== FUNÇÕES DE CRIAÇÃO DE TABELAS ================
 
@@ -61,7 +62,7 @@ class Banco_de_dados:
                 )
                 self.conn.commit()
             except Error as e:
-                print(f"Erro ao criar tabela Administracao: {e}")
+                messagebox.showerror(f"Erro ao criar tabela Administracao: {e}")
 
     def tabela_morador(self):
         """
@@ -83,7 +84,7 @@ class Banco_de_dados:
                 )
                 self.conn.commit()
             except Error as e:
-                print(f"Erro ao criar tabela Morador: {e}")
+                messagebox.showerror(f"Erro ao criar tabela Morador: {e}")
 
     def tabela_ocorrencias(self):
         """
@@ -108,7 +109,7 @@ class Banco_de_dados:
                 )
                 self.conn.commit()
             except Error as e:
-                print(f"Erro ao criar tabela Ocorrencias: {e}")
+                messagebox.showerror(f"Erro ao criar tabela Ocorrencias: {e}")
 
     def tabela_visitas(self):
         """
@@ -133,7 +134,7 @@ class Banco_de_dados:
                                )
                 self.conn.commit()
             except Error as e:
-                print(f"Erro ao criar tabela Visitas: {e}")
+                messagebox.showerror(f"Erro ao criar tabela Visitas: {e}")
 
     def criar_tabelas(self):
         """
@@ -146,7 +147,7 @@ class Banco_de_dados:
             self.tabela_visitas()
             self.desconectar()
         else:
-            print("Falha ao criar tabelas")
+            messagebox.showerror("Falha ao criar tabelas")
 
     #=========== FUNÇÕES DE MORADORES ================
 
@@ -157,7 +158,7 @@ class Banco_de_dados:
         """
         moradores = []
         if not self.conectar():
-            print("Falha no banco de dados")
+            messagebox.showerror("Falha no banco de dados")
             return moradores
 
         try:
@@ -169,7 +170,7 @@ class Banco_de_dados:
             """)
             moradores = cursor.fetchall()
         except Error as e:
-            print(f"Erro ao listar moradores: {e}")
+            messagebox.showerror(f"Erro ao listar moradores: {e}")
         finally:
             self.desconectar()
         return moradores
@@ -181,7 +182,7 @@ class Banco_de_dados:
         """
         moradores = []
         if not self.conectar():
-            print("Falha no banco de dados")
+            messagebox.showerror("Falha no banco de dados")
             return moradores
 
         try:
@@ -192,7 +193,7 @@ class Banco_de_dados:
             """)
             moradores = cursor.fetchall()
         except Error as e:
-            print(f"Erro ao listar moradores: {e}")
+            messagebox.showerror(f"Erro ao listar moradores: {e}")
         finally:
             self.desconectar()
         return moradores
@@ -204,7 +205,7 @@ class Banco_de_dados:
         :return: Retorna True se alguma linha for modificada, False se nada for modificado.
         """
         if not self.conectar():
-            print("ERRO DE CONEXAO")
+            messagebox.showerror("ERRO DE CONEXAO")
             return False
 
         try:
@@ -220,13 +221,11 @@ class Banco_de_dados:
             self.conn.commit()
 
             if cursor.rowcount>0:
-                print("STATUS MODIFICADO")
                 return True
             else:
-                print("NENHUM MORADOR MODIFICADO")
                 return False
         except Error as e:
-            print(f"Erro ao modificar status: {e}")
+            messagebox.showerror(f"Erro ao modificar status: {e}")
             return False
         finally:
             self.desconectar()
@@ -243,7 +242,7 @@ class Banco_de_dados:
         :return: Retorna True se o registro for realizado, False se ocorrer algum erro.
         """
         if not self.conectar():
-            print("ERRO DE CONEXAO")
+            messagebox.showerror("ERRO DE CONEXAO")
             return False
 
         try:
@@ -255,7 +254,7 @@ class Banco_de_dados:
             self.conn.commit()
             return True
         except Error as e:
-            print(f"Erro ao inserir ocorrência: {e}")
+            messagebox.showerror(f"Erro ao inserir ocorrência: {e}")
             return False
         finally:
             self.desconectar()
@@ -277,7 +276,7 @@ class Banco_de_dados:
             """)
             ocorrencias = cursor.fetchall()
         except Error as e:
-            print(f"Erro ao listar ocorrências: {e}")
+            messagebox.showerror(f"Erro ao listar ocorrências: {e}")
         finally:
             self.desconectar()
             return ocorrencias
@@ -296,7 +295,7 @@ class Banco_de_dados:
                            (morador_id,))
             ocorrencias = cursor.fetchall()
         except Error as e:
-            print(f"Erro ao listar ocorrências do morador: {e}")
+            messagebox.showerror(f"Erro ao listar ocorrências do morador: {e}")
         finally:
             self.desconectar()
         return ocorrencias
@@ -309,7 +308,7 @@ class Banco_de_dados:
         :return: Retorna True se alguma linha for modificada, False se nada for modificado.
         """
         if not self.conectar():
-            print("ERRO DE CONEXAO")
+            messagebox.showerror("ERRO DE CONEXAO")
             return False
 
         try:
@@ -322,13 +321,13 @@ class Banco_de_dados:
             self.conn.commit()
 
             if cursor.rowcount>0:
-                print(f"Status da ocorrencia ID:{ocorrencia_id} modificado para '{novo_status}'.")
+                messagebox.showinfo(f"Status da ocorrencia ID:{ocorrencia_id} modificado para '{novo_status}'.")
                 return True
             else:
-                print(f"Nenhuma ocorrencia foi modificada.")
+                messagebox.showinfo(f"Nenhuma ocorrencia foi modificada.")
                 return False
         except Error as e:
-            print(f"Erro ao modificar status= {e}")
+            messagebox.showerror(f"Erro ao modificar status= {e}")
             return False
         finally:
             self.desconectar()
@@ -354,7 +353,7 @@ class Banco_de_dados:
             """)
             visitas = cursor.fetchall()
         except Error as e:
-            print(f"Erro ao listar visitas: {e}")
+            messagebox.showerror(f"Erro ao listar visitas: {e}")
         finally:
             self.desconectar()
             return visitas
@@ -378,7 +377,7 @@ class Banco_de_dados:
             """, (morador_id,))
             visitantes = cursor.fetchall()
         except Error as e:
-            print(f"Erro ao listar visitantes do morador: {e}")
+            messagebox.showerror(f"Erro ao listar visitantes do morador: {e}")
         finally:
             self.desconectar()
         return visitantes
@@ -393,7 +392,7 @@ class Banco_de_dados:
         :return: True se o registro for realizado, False caso contrario.
         """
         if not self.conectar():
-            print("ERRO DE CONEXAO")
+            messagebox.showerror("ERRO DE CONEXAO")
             return False
 
         try:
@@ -405,7 +404,7 @@ class Banco_de_dados:
             self.conn.commit()
             return True
         except Error as e:
-            print(f"Erro ao inserir ocorrência: {e}")
+            messagebox.showerror(f"Erro ao inserir ocorrência: {e}")
             return False
         finally:
             self.desconectar()
@@ -416,7 +415,7 @@ class Banco_de_dados:
         admin_logado = []
 
         if not self.conectar():
-            print("Falha no banco de dados")
+            messagebox.showinfo("Falha no banco de dados")
             return admin_logado
 
         try:
@@ -426,10 +425,10 @@ class Banco_de_dados:
                 WHERE login = ?
             """, (login,))
             admin_logado = cursor.fetchone()
-            print(admin_logado)
+            messagebox.showinfo(admin_logado)
             return admin_logado
         except Error as e:
-            print(f"Erro ao buscar administrador: {e}")
+            messagebox.showerror(f"Erro ao buscar administrador: {e}")
             return admin_logado
         finally:
             self.desconectar()
@@ -450,14 +449,14 @@ class Banco_de_dados:
             """)
             adm = cursor.fetchall()
         except Error as e:
-            print(f"Erro ao listar administradores: {e}")
+            messagebox.showerror(f"Erro ao listar administradores: {e}")
         finally:
             self.desconectar()
             return adm
 
     def modificar_status_administrador(self, admin_id):
         if not self.conectar():
-            print("ERRO DE CONEXAO")
+            messagebox.showerror("ERRO DE CONEXAO")
             return False
 
         try:
@@ -473,13 +472,13 @@ class Banco_de_dados:
             self.conn.commit()
 
             if cursor.rowcount > 0:
-                print(f"Status do administrador ID:{admin_id} modificado.")
+                messagebox.showinfo(f"Status do administrador ID:{admin_id} modificado.")
                 return True
             else:
-                print(f"Nenhum administrador com ID {admin_id} encontrado ou status já era o desejado.")
+                messagebox.showinfo(f"Nenhum administrador com ID {admin_id} encontrado ou status já era o desejado.")
                 return False
         except Error as e:
-            print(f"Erro ao modificar status do administrador: {e}")
+            messagebox.showerror(f"Erro ao modificar status do administrador: {e}")
             return False
 
         finally:
