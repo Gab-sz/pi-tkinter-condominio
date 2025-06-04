@@ -1,10 +1,6 @@
 import tkinter as tk
-<<<<<<< HEAD
 from tkinter import messagebox
 
-=======
-from tkinter import ttk, messagebox
->>>>>>> d6d471f59afc4bcc6995ec0c78e48c526a2feae4
 from autenticacao import Autenticacao
 
 def criar_janela_cadastro_morador(master=None):
@@ -64,15 +60,10 @@ def criar_janela_cadastro_morador(master=None):
         sucesso = autenticador.registrar_morador_db(nome, telefone, cpf, bloco, apartamento)
 
         if sucesso:
-<<<<<<< HEAD
             messagebox.showinfo("Sucesso", "Morador cadastrado com sucesso!", parent=janela)
             janela.destroy()
         else:
             messagebox.showerror("Erro", "Falha ao cadastrar morador.", parent=janela)
-=======
-            messagebox.showinfo("CADASTRO FEITO")
-            limpar_campos()
->>>>>>> d6d471f59afc4bcc6995ec0c78e48c526a2feae4
 
     btn_cadastrar = tk.Button(frame_principal, text="Cadastrar Morador", command=cadastrar_morador, font=("Arial", 12), bg="#4CAF50", fg="white", relief=tk.FLAT, padx=10, pady=5)
     btn_cadastrar.pack()

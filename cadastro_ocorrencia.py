@@ -1,8 +1,4 @@
 import tkinter as tk
-<<<<<<< HEAD
-=======
-from tkinter import ttk
->>>>>>> d6d471f59afc4bcc6995ec0c78e48c526a2feae4
 from tkinter import ttk, messagebox
 from banco_de_dados import Banco_de_dados
 
@@ -20,9 +16,9 @@ def criar_janela_cadastro_ocorrencia(master=None, usuario_logado=None):
     :param usuario_logado: Usuario que entrou no sistema. Recebe esses dados da janela anterior.
     """
     if usuario_logado is None:
-        messagebox.showwarning("DADOS DO ADM NAO FORNECIDOS")
+        print("DADOS DO ADM NAO FORNECIDOS")
         usuario_logado = usuario_teste
-        messagebox.showwarning("Usando usuario teste")
+        print("Usando usuario teste")
 
     if master:
         janela = tk.Toplevel(master)
@@ -101,7 +97,7 @@ def criar_janela_cadastro_ocorrencia(master=None, usuario_logado=None):
         admin_id = usuario_logado['id']
 
         if morador_id is None:
-            messagebox.showwarning("Nenhum morador selecionado")
+            print("Nenhum morador selecionado")
 
         ##validação AQUIII
 
@@ -110,15 +106,10 @@ def criar_janela_cadastro_ocorrencia(master=None, usuario_logado=None):
         sucesso = db.registrar_ocorrencia_db(motivo, descricao, morador_id, admin_id)
 
         if sucesso:
-<<<<<<< HEAD
             messagebox.showinfo("Sucesso", "Cadastro de ocorrencia efetuado.", parent=janela)
             janela.destroy()
         else:
             messagebox.showerror("Erro", "Falha ao registrar ocorrencia.", parent=janela)
-=======
-            messagebox.showwarning(f"Ocorrencia registrada!")
-            ##DESTROI A JANELA E ABRE A LISTA DE OCORRENCIA
->>>>>>> d6d471f59afc4bcc6995ec0c78e48c526a2feae4
 
     # Botao
     btn_registrar = tk.Button(frame_principal, command=cadastrar_ocorrencia, text="Registrar Ocorrência",
